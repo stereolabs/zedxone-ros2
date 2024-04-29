@@ -18,6 +18,9 @@
 #include "visibility_control.hpp"
 
 #include "sl_types.hpp"
+#include "sl_logging.hpp"
+
+#include "ArgusCapture.hpp"
 
 namespace stereolabs
 {
@@ -32,6 +35,20 @@ public:
 
 protected:
 private:
+  // ZED X One camera object
+  std::unique_ptr<oc::ArgusV4l2Capture> _cam;
+
+  // ----> Parameters
+  // Debug
+  bool _debugGeneral = false;
+  // <---- Parameters
+
+  // ----> QoS
+  // https://github.com/ros2/ros2/wiki/About-Quality-of-Service-Settings
+  rclcpp::QoS _qos;
+  rclcpp::PublisherOptions _pubOpt;
+  rclcpp::SubscriptionOptions _subOpt;
+  // <---- QoS
 };
 
 } // namespace stereolabs

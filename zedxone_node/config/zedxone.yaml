@@ -1,0 +1,15 @@
+# config/depth_to_scan.yaml
+# Parameters for Depth image to laser scan conversion
+---
+/**:
+    ros__parameters:
+        
+        camera:
+            camera_name: 'zedxone'
+            camera_model: 'GS' # Global Shutter: 'GS', 4K HDR: '4K'
+            idx: 0
+            resolution: 'HD1080'
+            framerate: 30
+
+        debug:
+            general: false
