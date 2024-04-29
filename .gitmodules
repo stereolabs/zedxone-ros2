@@ -1,0 +1,4 @@
+[submodule "zedx-one-capture"]
+	path = zedxone_components/libs/zedx-one-capture
+	url = https://github.com/stereolabs/zedx-one-capture.git
+	branch = main
