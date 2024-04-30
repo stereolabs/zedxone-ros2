@@ -30,11 +30,18 @@ from launch_ros.actions import Node
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
+# ROS distribution
+distro = os.environ['ROS_DISTRO']
+
 # ZED X One Configurations to be loaded by ZED X One Node
-default_config_common = os.path.join(
+foxy=''
+if(distro=='foxy'):
+     foxy='_foxy'
+
+default_config_path = os.path.join(
     get_package_share_directory('zedxone_node'),
     'config',
-    'zedxone.yaml'
+    'zedxone'+foxy+'.yaml'
 )
 
 def launch_setup(context, *args, **kwargs):
@@ -45,29 +52,31 @@ def launch_setup(context, *args, **kwargs):
 
     node_name = LaunchConfiguration('node_name')
 
-    config_common_path = LaunchConfiguration('config_path')
+    config_path = LaunchConfiguration('config_path')
 
     camera_name_val = camera_name.perform(context)
     camera_model_val = camera_model.perform(context)
+    config_path_val = config_path.perform(context)
     node_name_val = node_name.perform(context)
 
     if (camera_name_val == ''):
         camera_name_val = 'zedxone'
 
-    config_camera_path = os.path.join(
-        get_package_share_directory('zedxone_node'),
-        'config/zedxone.yaml'
-    )
+    print("*** Launch arguments ***")
+    print(" * Node name: %s" % node_name_val)
+    print(" * Camera name: %s" % camera_name_val)
+    print(" * Camera model: %s" % camera_model_val)
+    print(" * Config file: %s" % config_path_val)
 
     # ZED X One component
     zedxone_component = ComposableNode(
         package='zedxone_components',
         namespace=camera_name_val,
         plugin='stereolabs::ZedXOneCamera',
-        name=node_name,
+        name=node_name_val,
         parameters=[
             # YAML files
-            config_common_path,  # Common parameters
+            config_path_val,  # Common parameters
             # Overriding
             {
                 'camera.camera_name': camera_name_val,
@@ -87,7 +96,7 @@ def launch_setup(context, *args, **kwargs):
             composable_node_descriptions=[
                 zedxone_component
             ],
-            output='screen',
+            output='screen'
     )
 
     return [
@@ -113,7 +122,7 @@ def generate_launch_description():
                 description='The name of the zed_wrapper node. All the topic will have the same prefix: `/<camera_name>/<node_name>/`'),
             DeclareLaunchArgument(
                 'config_path',
-                default_value=TextSubstitution(text=default_config_common),
+                default_value=TextSubstitution(text=default_config_path),
                 description='Path to the YAML configuration file for the camera.'),
             DeclareLaunchArgument(
                 'idx',

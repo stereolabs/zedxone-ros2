@@ -32,15 +32,6 @@ ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
   RCLCPP_INFO(get_logger(), " * node name: %s", get_name());
   RCLCPP_INFO(get_logger(), "********************************");
 
-  // Create the camera object
-  _cam = std::make_unique<oc::ArgusV4l2Capture>();
-
-  if (!_cam) {
-    RCLCPP_FATAL(
-      get_logger(), "Error creating the 'ArgusV4l2Capture'. Aborting ZED X One component.");
-    exit(EXIT_FAILURE);
-  }
-
   // ----> Publishers/Subscribers options
 #ifndef FOUND_FOXY
   _pubOpt.qos_overriding_options =
@@ -49,6 +40,14 @@ ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
     rclcpp::QosOverridingOptions::with_default_policies();
 #endif
   // <---- Publishers/Subscribers options
+
+  // Parameters initialization
+  initParameters();
+
+  // Open Camera
+  if (!openCamera()) {
+    exit(EXIT_FAILURE);
+  }
 }
 
 ZedXOneCamera::~ZedXOneCamera()
@@ -56,6 +55,182 @@ ZedXOneCamera::~ZedXOneCamera()
 
 }
 
+template<typename T>
+void ZedXOneCamera::getParam(
+  std::string paramName, T defValue, T & outVal,
+  std::string log_info, bool dynamic)
+{
+  rcl_interfaces::msg::ParameterDescriptor descriptor;
+  descriptor.read_only = !dynamic;
+
+  declare_parameter(paramName, rclcpp::ParameterValue(defValue), descriptor);
+
+  if (!get_parameter(paramName, outVal)) {
+    RCLCPP_WARN_STREAM(
+      get_logger(),
+      "The parameter '" <<
+        paramName <<
+        "' is not available or is not valid, using the default value: " <<
+        defValue);
+  }
+
+  if (!log_info.empty()) {
+    RCLCPP_INFO_STREAM(get_logger(), log_info << outVal);
+  }
+}
+
+void ZedXOneCamera::initParameters()
+{
+  // Debug
+  initDebugParams();
+
+  // Camera
+  initCamParams();
+}
+
+void ZedXOneCamera::initDebugParams()
+{
+  rclcpp::Parameter paramVal;
+
+  RCLCPP_INFO(get_logger(), "*** DEBUG parameters ***");
+
+  getParam("debug.grab_verbose_level", _argusVerbose, _argusVerbose, " * Grabber Verbose: ");
+
+  getParam("debug.general", _debugGeneral, _debugGeneral);
+  RCLCPP_INFO(
+    get_logger(), " * Debug General: %s",
+    _debugGeneral ? "TRUE" : "FALSE");
+
+  // ************************************************** //
+
+  _debugMode = _debugGeneral;
+
+  if (_debugMode) {
+    rcutils_ret_t res = rcutils_logging_set_logger_level(
+      get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+
+    if (res != RCUTILS_RET_OK) {
+      RCLCPP_INFO(get_logger(), "Error setting DEBUG level for logger");
+    } else {
+      RCLCPP_INFO(get_logger(), " + Debug Mode enabled +");
+    }
+  } else {
+    rcutils_ret_t res = rcutils_logging_set_logger_level(
+      get_logger().get_name(), RCUTILS_LOG_SEVERITY_INFO);
+
+    if (res != RCUTILS_RET_OK) {
+      RCLCPP_INFO(get_logger(), "Error setting INFO level for logger");
+    }
+  }
+
+  DEBUG_STREAM_GEN("[ROS 2] Using RMW_IMPLEMENTATION " << rmw_get_implementation_identifier());
+}
+
+void ZedXOneCamera::initCamParams()
+{
+  rclcpp::Parameter paramVal;
+
+  RCLCPP_INFO(get_logger(), "*** CAMERA parameters ***");
+
+  getParam("camera.camera_model", _model, _model);
+  if (_model != "GS" && _model != "4K") {
+    RCLCPP_FATAL_STREAM(
+      get_logger(),
+      "Wrong camera model parameter. Expected 'GS' or '4K', retrieved '" << _model << "'");
+    RCLCPP_FATAL(get_logger(), "Please check the value of the parameter 'camera.model'");
+    exit(EXIT_FAILURE);
+  }
+  RCLCPP_INFO_STREAM(get_logger(), " * Model: " << _model);
+
+  getParam("camera.idx", _deviceIdx, _deviceIdx, " * Device IDX: ");
+
+  getParam("camera.resolution", _resolution, _resolution);
+  if (_resolution == "SVGA") {
+    _width = SVGA_W;
+    _height = SVGA_H;
+  } else if (_resolution == "HD1080") {
+    _width = HD1080_W;
+    _height = HD1080_H;
+  } else if (_resolution == "HD1200") {
+    _width = HD1200_W;
+    _height = HD1200_H;
+  } else if (_resolution == "4K") {
+    if (_model != "4K") {
+      RCLCPP_FATAL(get_logger(), "'4K' resolution is only available with '4k' camera model.");
+      RCLCPP_FATAL(get_logger(), "Please check the value of the parameter 'camera.resolution'");
+      exit(EXIT_FAILURE);
+    }
+    _width = HD4K_W;
+    _height = HD4K_H;
+  } else {
+    RCLCPP_FATAL_STREAM(get_logger(), "Invalid resolution parameter: '" << _resolution << "'");
+    RCLCPP_FATAL(get_logger(), "Please check the value of the parameter 'camera.resolution'");
+    exit(EXIT_FAILURE);
+  }
+  RCLCPP_INFO_STREAM(
+    get_logger(), " * Resolution: " << _resolution << " [" << _width << "x" << _height << "]");
+
+  getParam("camera.framerate", _fps, _fps, " * Framerate: ");
+  getParam("camera.swap_rb", _swapRB, _swapRB);
+  RCLCPP_INFO_STREAM(
+    get_logger(), " * Swap RB: " << (_swapRB ? "TRUE" : "FALSE"));
+
+  getParam("camera.pixel_format", _pxFormat, _pxFormat);
+  if (_pxFormat == "COLOR_RGB") {
+    _pxMode = oc::PixelMode::COLOR_RGB;
+  } else if (_pxFormat == "COLOR_RGBA") {
+    _pxMode = oc::PixelMode::COLOR_RGBA;
+  } else if (_pxFormat == "RAW_BAYER") {
+    if (_model == "4K") {
+      _pxMode = oc::PixelMode::RAW12;
+    } else {
+      _pxMode = oc::PixelMode::RAW10;
+    }
+  } else {
+    RCLCPP_FATAL_STREAM(get_logger(), "Invalid pixel format parameter: '" << _pxFormat << "'");
+    RCLCPP_FATAL(get_logger(), "Please check the value of the parameter 'camera.pixel_format'");
+    exit(EXIT_FAILURE);
+  }
+  RCLCPP_INFO_STREAM(
+    get_logger(), " * Pixel Format: " << _pxFormat);
+}
+
+bool ZedXOneCamera::openCamera()
+{
+  // Create the camera object
+  if (_pxFormat == "RAW_BAYER") {
+    _cam = std::make_unique<oc::ArgusV4l2Capture>();
+  } else {
+    _cam = std::make_unique<oc::ArgusBayerCapture>();
+  }
+
+  if (!_cam) {
+    RCLCPP_FATAL(
+      get_logger(), "Error creating the 'ArgusV4l2Capture'. Aborting ZED X One component.");
+    return false;
+  }
+
+  // ----> Camera configuration
+  oc::ArgusCameraConfig config;
+  config.mDeviceId = _deviceIdx;
+  config.mFPS = _fps;
+  config.mHeight = _height;
+  config.mSwapRB = _swapRB;
+  config.mWidth = _width;
+  config.verbose_level = _argusVerbose;
+  config.mode = _pxMode;
+  // <---- Camera configuration
+
+  oc::ARGUS_STATE res;
+
+  res = _cam->openCamera(config);
+  if (res != oc::ARGUS_STATE::OK) {
+    RCLCPP_FATAL_STREAM(get_logger(), "Failed to open the camera: " << oc::ARGUS_STATE2str(res));
+    return false;
+  }
+
+  return true;
+}
 } // namespace stereolabs
 
 #include "rclcpp_components/register_node_macro.hpp"

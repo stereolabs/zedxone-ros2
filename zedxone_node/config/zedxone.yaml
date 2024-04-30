@@ -1,15 +1,18 @@
-# config/depth_to_scan.yaml
-# Parameters for Depth image to laser scan conversion
+# config/zedxone.yaml
+# Parameters of the ZED X One node
 ---
 /**:
     ros__parameters:
         
         camera:
-            camera_name: 'zedxone'
-            camera_model: 'GS' # Global Shutter: 'GS', 4K HDR: '4K'
+            model: 'GS' # Global Shutter: 'GS', 4K HDR: '4K'
             idx: 0
-            resolution: 'HD1080'
+            resolution: 'HD1080' # 'SVGA', 'HD1080', 'HD1200', '4K'
             framerate: 30
+            swap_rb: false
+            pixel_format: 'COLOR_RGB' # 'COLOR_RGBA', 'COLOR_RGB', 'RAW_BAYER'
 
         debug:
+            grab_verbose_level: 0
             general: false
+

@@ -150,6 +150,7 @@ add_library(zedxone_camera_component SHARED
 target_include_directories(zedxone_camera_component PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src/zedxone_camera/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/zedx-one-capture/lib/include
 )
 target_compile_definitions(zedxone_camera_component
     PRIVATE "COMPOSITION_BUILDING_DLL"

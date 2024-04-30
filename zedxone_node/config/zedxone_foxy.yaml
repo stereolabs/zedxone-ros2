@@ -1,0 +1,17 @@
+# ROS 2 Foxy: Composing nodes in launch files require YAML parameter files without
+# node prefix
+# See https://github.com/ros2/launch_ros/issues/156
+
+camera:
+    model: 'GS' # Global Shutter: 'GS', 4K HDR: '4K'
+    idx: 0
+    resolution: 'HD1200' # 'SVGA', 'HD1080', 'HD1200', '4K'
+    framerate: 60
+    swap_rb: false
+    pixel_format: 'COLOR_RGB' # 'COLOR_RGBA', 'COLOR_RGB', 'RAW_BAYER'
+
+debug:
+    grab_verbose_level: 4
+    general: true
+
+

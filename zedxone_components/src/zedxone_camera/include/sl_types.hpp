@@ -22,6 +22,17 @@
 
 namespace stereolabs
 {
+// ----> Camera resolutions
+const int SVGA_W = 960;
+const int SVGA_H = 600;
+const int HD1080_W = 1920;
+const int HD1080_H = 1080;
+const int HD1200_W = 1920;
+const int HD1200_H = 1200;
+const int HD4K_W = 3840;
+const int HD4K_H = 2160;
+// <---- Camera resolutions
+
 } // namespace stereolabs
 
 #endif //  SL_TYPES_HPP

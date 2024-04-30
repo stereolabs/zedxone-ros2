@@ -34,14 +34,41 @@ public:
   virtual ~ZedXOneCamera();
 
 protected:
+  bool openCamera();
+
+  void initParameters();
+  void initDebugParams();
+  void initCamParams();
+
+  template<typename T>
+  void getParam(
+    std::string paramName, T defValue, T & outVal,
+    std::string log_info = std::string(), bool dynamic = false);
+
 private:
   // ZED X One camera object
-  std::unique_ptr<oc::ArgusV4l2Capture> _cam;
+  std::unique_ptr<oc::ArgusVirtualCapture> _cam;
 
   // ----> Parameters
   // Debug
+  int _argusVerbose = 0;
   bool _debugGeneral = false;
+
+  // Camera
+  std::string _model;
+  int _deviceIdx = 0;
+  int _fps = 30;
+  std::string _resolution = "HD1080";
+  bool _swapRB = false;
+  std::string _pxFormat;
   // <---- Parameters
+
+  // ----> Running parameters
+  bool _debugMode = false;
+  int _width;
+  int _height;
+  oc::PixelMode _pxMode;
+  // <---- Running parameters
 
   // ----> QoS
   // https://github.com/ros2/ros2/wiki/About-Quality-of-Service-Settings
