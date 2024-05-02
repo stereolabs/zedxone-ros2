@@ -130,9 +130,17 @@ set(node_plugins "")
 # "EXCLUDE_FROM_ALL" is used to ignore the install command of the "arguscapture" lib
 add_subdirectory(libs/zedx-one-capture/lib EXCLUDE_FROM_ALL)
 
+set(TOOLS_INC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/include/sl_tools.hpp
+)
+
+set(TOOLS_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/src/sl_tools.cpp
+)
+
 set(ZEDXONE_CAMERA_INC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/include/visibility_control.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/zedxone_camera/include/sl_types.hpp   
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/zedxone_camera/include/sl_types.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/zedxone_camera/include/zedxone_camera_component.hpp
 )
 
@@ -144,11 +152,14 @@ set(ZEDXONE_CAMERA_SRC
 # Bin and Install
 
 add_library(zedxone_camera_component SHARED
+    ${TOOLS_INC}
+    ${TOOLS_SRC}
     ${ZEDXONE_CAMERA_INC}
     ${ZEDXONE_CAMERA_SRC}
 )
 target_include_directories(zedxone_camera_component PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src/zedxone_camera/include
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/zedx-one-capture/lib/include
 )

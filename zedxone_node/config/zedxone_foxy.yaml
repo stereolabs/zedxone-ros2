@@ -5,10 +5,11 @@
 camera:
     model: 'GS' # Global Shutter: 'GS', 4K HDR: '4K'
     idx: 0
-    resolution: 'HD1200' # 'SVGA', 'HD1080', 'HD1200', '4K'
-    framerate: 60
+    resolution: 'SVGA' # 'SVGA', 'HD1080', 'HD1200', '4K'
+    framerate: 120
     swap_rb: false
-    pixel_format: 'COLOR_RGB' # 'COLOR_RGBA', 'COLOR_RGB', 'RAW_BAYER'
+    pixel_format: 'COLOR_RGBA' # 'COLOR_RGBA', 'COLOR_RGB', 'RAW_BAYER'
+    timeout_msec: 2000 # Camera timeout in milliseconds
 
 debug:
     grab_verbose_level: 4

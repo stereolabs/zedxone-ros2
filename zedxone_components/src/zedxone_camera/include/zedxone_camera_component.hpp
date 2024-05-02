@@ -17,6 +17,10 @@
 
 #include "visibility_control.hpp"
 
+#include <image_transport/camera_publisher.hpp>
+#include <image_transport/publisher.hpp>
+#include <image_transport/image_transport.hpp>
+
 #include "sl_types.hpp"
 #include "sl_logging.hpp"
 
@@ -35,6 +39,7 @@ public:
 
 protected:
   bool openCamera();
+  void callback_frameGrab();
 
   void initParameters();
   void initDebugParams();
@@ -61,6 +66,7 @@ private:
   std::string _resolution = "HD1080";
   bool _swapRB = false;
   std::string _pxFormat;
+  int _cam_timeout_msec = 2000;
   // <---- Parameters
 
   // ----> Running parameters
@@ -69,6 +75,11 @@ private:
   int _height;
   oc::PixelMode _pxMode;
   // <---- Running parameters
+
+  // ----> Running variables
+  rclcpp::TimerBase::SharedPtr _frameGrabTimer;  // Timer to grab camera frames
+  image_transport::Publisher _pubImg;    // Publisher for camera stream without camera information
+  // <---- Running variables
 
   // ----> QoS
   // https://github.com/ros2/ros2/wiki/About-Quality-of-Service-Settings
