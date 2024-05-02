@@ -58,14 +58,17 @@ ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
   _pubImg = image_transport::create_publisher(this, "image", _qos.get_rmw_qos_profile());
   RCLCPP_INFO_STREAM(get_logger(), "Advertised on topic: " << _pubImg.getTopic());
 
-  // ----> Start grab timer
-  int msec = static_cast<int>(1000. / (_fps));
-  _frameGrabTimer =
-    create_wall_timer(
-    std::chrono::duration_cast<std::chrono::milliseconds>(
-      std::chrono::milliseconds(msec)),
-    std::bind(&ZedXOneCamera::callback_frameGrab, this));
-  // <---- Start grab timer
+  // // ----> Start grab timer
+  // int msec = static_cast<int>(1000. / (_fps));
+  // _frameGrabTimer =
+  //   create_wall_timer(
+  //   std::chrono::duration_cast<std::chrono::milliseconds>(
+  //     std::chrono::milliseconds(msec)),
+  //   std::bind(&ZedXOneCamera::callback_frameGrab, this));
+  // // <---- Start grab timer
+
+  // Start Grab thread
+  _grabThread = std::thread(&ZedXOneCamera::callback_frameGrab, this);
 }
 
 ZedXOneCamera::~ZedXOneCamera()
@@ -254,36 +257,38 @@ bool ZedXOneCamera::openCamera()
 
 void ZedXOneCamera::callback_frameGrab()
 {
-  // ----> Check if a new frame is available
-  auto start = std::chrono::system_clock::now();
-  while (!_cam->isNewFrame()) {
-    auto end = std::chrono::system_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    if (elapsed.count() > _cam_timeout_msec) {
-      RCLCPP_FATAL(get_logger(), "Camera timeout. Disconnected?");
-      exit(EXIT_FAILURE);     // TODO Recover camera?
+  while (1) {
+    // ----> Check if a new frame is available
+    auto start = std::chrono::system_clock::now();
+    while (!_cam->isNewFrame()) {
+      auto end = std::chrono::system_clock::now();
+      auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+      if (elapsed.count() > _cam_timeout_msec) {
+        RCLCPP_FATAL(get_logger(), "Camera timeout. Disconnected?");
+        exit(EXIT_FAILURE);     // TODO Recover camera?
+      }
+      rclcpp::sleep_for(1ms);
     }
-    rclcpp::sleep_for(1ms);
+    // <---- Check if a new frame is available
+
+    size_t data_size = _cam->getWidth() * _cam->getHeight() * _cam->getNumberOfChannels();
+
+    uint64_t ts_nsec = _cam->getImageTimestampinUs() * 1000;
+
+    std::shared_ptr<sensor_msgs::msg::Image> msg = std::make_shared<sensor_msgs::msg::Image>();
+    msg->header.frame_id = _model;
+    msg->header.stamp = sl_tools::slTime2Ros(ts_nsec);
+    msg->encoding = sensor_msgs::image_encodings::BGRA8; // TODO Switch on different encodings
+    msg->width = _width;
+    msg->height = _height;
+    msg->step = _width * _cam->getNumberOfChannels();
+    msg->data = std::vector<uint8_t>(_cam->getPixels(), _cam->getPixels() + data_size);
+
+    int num = 1;  // for endianness detection
+    msg->is_bigendian = !(*reinterpret_cast<char *>(&num) == 1);
+
+    _pubImg.publish(msg);
   }
-  // <---- Check if a new frame is available
-
-  size_t data_size = _cam->getWidth() * _cam->getHeight() * _cam->getNumberOfChannels();
-
-  uint64_t ts_nsec = _cam->getImageTimestampinUs() * 1000;
-
-  std::shared_ptr<sensor_msgs::msg::Image> msg = std::make_shared<sensor_msgs::msg::Image>();
-  msg->header.frame_id = _model;
-  msg->header.stamp = sl_tools::slTime2Ros(ts_nsec);
-  msg->encoding = sensor_msgs::image_encodings::BGRA8; // TODO Switch on different encodings
-  msg->width = _width;
-  msg->height = _height;
-  msg->step = _width * _cam->getNumberOfChannels();
-  msg->data = std::vector<uint8_t>(_cam->getPixels(), _cam->getPixels() + data_size);
-
-  int num = 1;  // for endianness detection
-  msg->is_bigendian = !(*reinterpret_cast<char *>(&num) == 1);
-
-  _pubImg.publish(msg);
 }
 } // namespace stereolabs
 

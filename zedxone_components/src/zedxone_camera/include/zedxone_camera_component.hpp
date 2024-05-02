@@ -77,7 +77,8 @@ private:
   // <---- Running parameters
 
   // ----> Running variables
-  rclcpp::TimerBase::SharedPtr _frameGrabTimer;  // Timer to grab camera frames
+  //rclcpp::TimerBase::SharedPtr _frameGrabTimer;  // Timer to grab camera frames
+  std::thread _grabThread;
   image_transport::Publisher _pubImg;    // Publisher for camera stream without camera information
   // <---- Running variables
 
