@@ -72,11 +72,41 @@ ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
 
   _imgTrMsg = std::make_unique<sensor_msgs::msg::Image>();
   _imgTrMsg->header.frame_id = _model;
-  _imgTrMsg->encoding = sensor_msgs::image_encodings::BGRA8;   // TODO Switch on different encodings
+  switch (_pxMode) {
+    case oc::PixelMode::COLOR_RGB:
+      if (_swapRB) {
+        _imgTrMsg->encoding = sensor_msgs::image_encodings::RGB8;
+      } else {
+        _imgTrMsg->encoding = sensor_msgs::image_encodings::BGR8;
+      }
+      break;
+    case oc::PixelMode::COLOR_RGBA:
+      if (_swapRB) {
+        _imgTrMsg->encoding = sensor_msgs::image_encodings::RGBA8;
+      } else {
+        _imgTrMsg->encoding = sensor_msgs::image_encodings::BGRA8;
+      }
+      break;
+    case oc::PixelMode::RAW10:
+    case oc::PixelMode::RAW12:
+      _imgTrMsg->encoding = sensor_msgs::image_encodings::BAYER_BGGR16;
+      break;
+  }
+
   _imgTrMsg->width = _width;
   _imgTrMsg->height = _height;
-  _imgTrMsg->step = _width * _cam->getNumberOfChannels();
+  _imgTrMsg->step = _width * _cam->getNumberOfChannels() * _cam->getPixelDepth();
   _imgTrMsg->is_bigendian = !(*reinterpret_cast<char *>(&num) == 1);
+
+  DEBUG_GEN("*** Image Format ***");
+  DEBUG_STREAM_GEN(" * Width: " << _imgTrMsg->width);
+  DEBUG_STREAM_GEN(" * Height: " << _imgTrMsg->height);
+  DEBUG_STREAM_GEN(" * Channels: " << _cam->getNumberOfChannels());
+  DEBUG_STREAM_GEN(" * Depth: " << _cam->getPixelDepth());
+  DEBUG_STREAM_GEN(" * Step: " << _imgTrMsg->step);
+  DEBUG_STREAM_GEN(" * Size: " << _imgTrMsg->step * _imgTrMsg->height);
+  DEBUG_STREAM_GEN(" * Format : " << _pxFormat);
+
   // <---- Create messages
 
   // ----> Create publishers
@@ -97,8 +127,6 @@ ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
     std::bind(&ZedXOneCamera::callback_frameGrab, this));
   // <---- Start grab timer
 #endif
-
-
 }
 
 ZedXOneCamera::~ZedXOneCamera()

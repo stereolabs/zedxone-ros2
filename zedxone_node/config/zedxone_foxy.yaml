@@ -12,7 +12,7 @@ camera:
     timeout_msec: 2000 # Camera timeout in milliseconds
 
 debug:
-    grab_verbose_level: 0
+    grab_verbose_level: 6
     general: false
     diagnostic: false
 
