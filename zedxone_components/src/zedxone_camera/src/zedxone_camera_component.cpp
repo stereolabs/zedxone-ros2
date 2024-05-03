@@ -106,7 +106,6 @@ ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
   DEBUG_STREAM_GEN(" * Step: " << _imgTrMsg->step);
   DEBUG_STREAM_GEN(" * Size: " << _imgTrMsg->step * _imgTrMsg->height);
   DEBUG_STREAM_GEN(" * Format : " << _pxFormat);
-
   // <---- Create messages
 
   // ----> Create publishers
@@ -127,6 +126,10 @@ ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
     std::bind(&ZedXOneCamera::callback_frameGrab, this));
   // <---- Start grab timer
 #endif
+
+    // Dynamic parameters callback
+  _paramChangeCallbackHandle = add_on_set_parameters_callback(
+    std::bind(&ZedXOneCamera::callback_paramChange, this, _1));
 }
 
 ZedXOneCamera::~ZedXOneCamera()
@@ -415,6 +418,24 @@ void ZedXOneCamera::callback_updateDiagnostic(diagnostic_updater::DiagnosticStat
   stat.addf("Capture", "Mean Frequency: %.1f Hz (%.1f%%)", freq, freq_perc);
 
   stat.addf("Image Transp. Pub.", "Subscribers: %d", _imgTranspSubs);
+}
+
+rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(std::vector<rclcpp::Parameter> parameters) 
+{
+  DEBUG_STREAM_GEN("Parameter change callback");
+
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+
+  DEBUG_STREAM_GEN("Modifying " << parameters.size() << " parameters");
+
+  int count = 0;
+
+  for (const rclcpp::Parameter & param : parameters) {
+    count++;
+
+    DEBUG_STREAM_GEN("Param #" << count << ": " << param.get_name());
+  }
 }
 
 } // namespace stereolabs

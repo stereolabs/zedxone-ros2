@@ -48,6 +48,7 @@ protected:
   void callback_frameGrab();
 
   void callback_updateDiagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  rcl_interfaces::msg::SetParametersResult callback_paramChange(std::vector<rclcpp::Parameter> parameters);
 
   void initParameters();
   void initDebugParams();
@@ -76,6 +77,9 @@ private:
   bool _swapRB = false;
   std::string _pxFormat;
   int _cam_timeout_msec = 2000;
+
+  // Dynamic
+  OnSetParametersCallbackHandle::SharedPtr _paramChangeCallbackHandle;
   // <---- Parameters
 
   // ----> Running parameters
