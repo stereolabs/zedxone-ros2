@@ -132,10 +132,12 @@ add_subdirectory(libs/zedx-one-capture/lib EXCLUDE_FROM_ALL)
 
 set(TOOLS_INC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/include/sl_tools.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/include/sl_win_avg.hpp
 )
 
 set(TOOLS_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/src/sl_tools.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/src/sl_win_avg.cpp
 )
 
 set(ZEDXONE_CAMERA_INC

@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #include "zedxone_camera_component.hpp"
-#include "sl_tools.hpp"
 
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include <diagnostic_msgs/msg/diagnostic_status.hpp>
 
 using namespace std::chrono_literals;
 namespace stereolabs
@@ -28,6 +28,9 @@ const int QOS_QUEUE_SIZE = 10;
 
 ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
 : Node("zedxone_node", options),
+  _stopNode(false),
+  _grabFreqStopWatch(get_clock()),
+  _diagUpdater(this),
   _qos(QOS_QUEUE_SIZE)
 {
   RCLCPP_INFO(get_logger(), "********************************");
@@ -54,26 +57,65 @@ ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
     exit(EXIT_FAILURE);
   }
 
+  // ----> Diagnostic variables
+  _grabPeriodMean_sec = std::make_unique<sl_tools::WinAvg>(static_cast<size_t>(_fps));
+
+  _diagUpdater.add(
+    "ZED X One Diagnostic", this,
+    &ZedXOneCamera::callback_updateDiagnostic);
+  std::string hw_id = std::string("Stereolabs camera: ") + _model;
+  _diagUpdater.setHardwareID(hw_id);
+  // <---- Statistic variables
+
+  // ----> Create messages
+  int num = 1;    // for endianness detection
+
+  _imgTrMsg = std::make_unique<sensor_msgs::msg::Image>();
+  _imgTrMsg->header.frame_id = _model;
+  _imgTrMsg->encoding = sensor_msgs::image_encodings::BGRA8;   // TODO Switch on different encodings
+  _imgTrMsg->width = _width;
+  _imgTrMsg->height = _height;
+  _imgTrMsg->step = _width * _cam->getNumberOfChannels();
+  _imgTrMsg->is_bigendian = !(*reinterpret_cast<char *>(&num) == 1);
+  // <---- Create messages
+
   // ----> Create publishers
-  _pubImg = image_transport::create_publisher(this, "image", _qos.get_rmw_qos_profile());
-  RCLCPP_INFO_STREAM(get_logger(), "Advertised on topic: " << _pubImg.getTopic());
+  _pubImgTransp = image_transport::create_publisher(this, "image", _qos.get_rmw_qos_profile());
+  RCLCPP_INFO_STREAM(get_logger(), "Advertised on topic: " << _pubImgTransp.getTopic());
+  // <---- Create publishers
 
-  // // ----> Start grab timer
-  // int msec = static_cast<int>(1000. / (_fps));
-  // _frameGrabTimer =
-  //   create_wall_timer(
-  //   std::chrono::duration_cast<std::chrono::milliseconds>(
-  //     std::chrono::milliseconds(msec)),
-  //   std::bind(&ZedXOneCamera::callback_frameGrab, this));
-  // // <---- Start grab timer
-
+#ifdef USE_THREAD
   // Start Grab thread
   _grabThread = std::thread(&ZedXOneCamera::callback_frameGrab, this);
+#else
+  // ----> Start grab timer
+  int msec = static_cast<int>(1000. / (_fps));
+  _frameGrabTimer =
+    create_wall_timer(
+    std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::milliseconds(msec)),
+    std::bind(&ZedXOneCamera::callback_frameGrab, this));
+  // <---- Start grab timer
+#endif
+
+
 }
 
 ZedXOneCamera::~ZedXOneCamera()
 {
+  _stopNode = true;
 
+#ifdef USE_THREAD
+  if (_grabThread.joinable()) {
+    _grabThread.join();
+  }
+#else
+  _frameGrabTimer.reset();
+#endif
+
+  _cam.reset();
+  _imgTrMsg.reset();
+  _diagUpdater.force_update();
 }
 
 template<typename T>
@@ -122,9 +164,13 @@ void ZedXOneCamera::initDebugParams()
     get_logger(), " * Debug General: %s",
     _debugGeneral ? "TRUE" : "FALSE");
 
+  getParam("debug.diagnostic", _debugDiagnostic, _debugDiagnostic);
+  RCLCPP_INFO(
+    get_logger(), " * Debug Diagnostic: %s",
+    _debugDiagnostic ? "TRUE" : "FALSE");
   // ************************************************** //
 
-  _debugMode = _debugGeneral;
+  _debugMode = _debugGeneral | _debugDiagnostic;
 
   if (_debugMode) {
     rcutils_ret_t res = rcutils_logging_set_logger_level(
@@ -257,7 +303,19 @@ bool ZedXOneCamera::openCamera()
 
 void ZedXOneCamera::callback_frameGrab()
 {
-  while (1) {
+
+#ifdef USE_THREAD
+  DEBUG_GEN("Grab thread started");
+  while (!_stopNode)
+#endif
+  {
+
+#ifdef USE_THREAD
+    if (!_cam->isNewFrame()) {
+      rclcpp::sleep_for(5ms);
+      continue;
+    }
+#else
     // ----> Check if a new frame is available
     auto start = std::chrono::system_clock::now();
     while (!_cam->isNewFrame()) {
@@ -270,26 +328,67 @@ void ZedXOneCamera::callback_frameGrab()
       rclcpp::sleep_for(1ms);
     }
     // <---- Check if a new frame is available
+#endif
 
+    // Data retrieve
+    auto px_data = _cam->getPixels(); // This is required to not block the grabber
+    uint64_t ts_nsec = _cam->getImageTimestampinUs() * 1000;
     size_t data_size = _cam->getWidth() * _cam->getHeight() * _cam->getNumberOfChannels();
 
-    uint64_t ts_nsec = _cam->getImageTimestampinUs() * 1000;
+    // ----> Image message
+    _imgTranspSubs = _pubImgTransp.getNumSubscribers();
+    if (_imgTranspSubs > 0) {
+      _imgTrMsg->header.stamp = sl_tools::slTime2Ros(ts_nsec);
+      _imgTrMsg->data = std::vector<uint8_t>(px_data, px_data + data_size);
 
-    std::shared_ptr<sensor_msgs::msg::Image> msg = std::make_shared<sensor_msgs::msg::Image>();
-    msg->header.frame_id = _model;
-    msg->header.stamp = sl_tools::slTime2Ros(ts_nsec);
-    msg->encoding = sensor_msgs::image_encodings::BGRA8; // TODO Switch on different encodings
-    msg->width = _width;
-    msg->height = _height;
-    msg->step = _width * _cam->getNumberOfChannels();
-    msg->data = std::vector<uint8_t>(_cam->getPixels(), _cam->getPixels() + data_size);
+      _pubImgTransp.publish(*_imgTrMsg);
+    }
+    // <---- Image message
 
-    int num = 1;  // for endianness detection
-    msg->is_bigendian = !(*reinterpret_cast<char *>(&num) == 1);
+    // ----> Grab freq calculation
+    double elapsed_sec = _grabFreqStopWatch.toc();
+    _grabPeriodMean_sec->addValue(elapsed_sec);
+    _grabFreqStopWatch.tic();
 
-    _pubImg.publish(msg);
+    DEBUG_STREAM_DIAG(
+      "Grab period: " << _grabPeriodMean_sec->getAvg() << " sec - Freq: " << 1.0 /
+        _grabPeriodMean_sec->getAvg());
+    // <---- Grab freq calculation
   }
+
+#ifdef USE_THREAD
+  _diagUpdater.force_update();
+  DEBUG_GEN("Grab thread finished");
+#endif
 }
+
+void ZedXOneCamera::callback_updateDiagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+  DEBUG_DIAG("*** Update Diagnostic ***");
+
+  if (_stopNode) {
+    stat.summary(
+      diagnostic_msgs::msg::DiagnosticStatus::STALE,
+      "Node stopped");
+  }
+
+  if (_cam && _cam->isOpened()) {
+    stat.summary(
+      diagnostic_msgs::msg::DiagnosticStatus::OK,
+      "Camera grabbing");
+  } else {
+    stat.summary(
+      diagnostic_msgs::msg::DiagnosticStatus::STALE,
+      "Camera stopped");
+  }
+
+  double freq = 1. / _grabPeriodMean_sec->getAvg();
+  double freq_perc = 100. * freq / _fps;
+  stat.addf("Capture", "Mean Frequency: %.1f Hz (%.1f%%)", freq, freq_perc);
+
+  stat.addf("Image Transp. Pub.", "Subscribers: %d", _imgTranspSubs);
+}
+
 } // namespace stereolabs
 
 #include "rclcpp_components/register_node_macro.hpp"

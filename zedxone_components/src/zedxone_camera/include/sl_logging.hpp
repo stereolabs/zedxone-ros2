@@ -32,4 +32,19 @@
       stream_arg); \
   }
 
+// Diagnostic
+#define DEBUG_DIAG(...) \
+  if (_debugDiagnostic) RCLCPP_DEBUG (get_logger(), __VA_ARGS__)
+#define DEBUG_ONCE_DIAG(...) \
+  if (_debugDiagnostic) RCLCPP_DEBUG_ONCE (get_logger(), __VA_ARGS__)
+#define DEBUG_STREAM_DIAG(stream_arg) \
+  if (_debugDiagnostic) RCLCPP_DEBUG_STREAM (get_logger(), stream_arg)
+#define DEBUG_STREAM_THROTTLE_DIAG(duration, stream_arg) \
+  if (_debugDiagnostic) { \
+    rclcpp::Clock steady_clock(RCL_STEADY_TIME); \
+    RCLCPP_DEBUG_STREAM_THROTTLE( \
+      get_logger(), steady_clock, duration, \
+      stream_arg); \
+  }
+
 #endif // SL_LOGGING_HPP

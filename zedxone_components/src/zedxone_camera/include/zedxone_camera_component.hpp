@@ -21,10 +21,16 @@
 #include <image_transport/publisher.hpp>
 #include <image_transport/image_transport.hpp>
 
+#include <diagnostic_updater/diagnostic_updater.hpp>
+#include <rclcpp/publisher.hpp>
+
 #include "sl_types.hpp"
 #include "sl_logging.hpp"
+#include "sl_tools.hpp"
 
 #include "ArgusCapture.hpp"
+
+#define USE_THREAD // if defined grab is performed in a thread, otherwise a timer is used
 
 namespace stereolabs
 {
@@ -40,6 +46,8 @@ public:
 protected:
   bool openCamera();
   void callback_frameGrab();
+
+  void callback_updateDiagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat);
 
   void initParameters();
   void initDebugParams();
@@ -58,6 +66,7 @@ private:
   // Debug
   int _argusVerbose = 0;
   bool _debugGeneral = false;
+  bool _debugDiagnostic = false;
 
   // Camera
   std::string _model;
@@ -77,10 +86,24 @@ private:
   // <---- Running parameters
 
   // ----> Running variables
-  //rclcpp::TimerBase::SharedPtr _frameGrabTimer;  // Timer to grab camera frames
+#ifdef USE_THREAD
   std::thread _grabThread;
-  image_transport::Publisher _pubImg;    // Publisher for camera stream without camera information
+#else
+  rclcpp::TimerBase::SharedPtr _frameGrabTimer;  // Timer to grab camera frames
+#endif
+
+  std::atomic<bool> _stopNode;
+  image_transport::Publisher _pubImgTransp; // Publisher for camera stream over image_transport
   // <---- Running variables
+
+  // ----> Diagnostic variables
+  sl_tools::StopWatch _grabFreqStopWatch;
+  std::unique_ptr<sl_tools::WinAvg> _grabPeriodMean_sec;
+
+  int _imgTranspSubs = 0;
+
+  diagnostic_updater::Updater _diagUpdater;  // Diagnostic Updater
+  // <---- Diagnostic variables
 
   // ----> QoS
   // https://github.com/ros2/ros2/wiki/About-Quality-of-Service-Settings
@@ -88,6 +111,10 @@ private:
   rclcpp::PublisherOptions _pubOpt;
   rclcpp::SubscriptionOptions _subOpt;
   // <---- QoS
+
+  // ----> Messages
+  sensor_msgs::msg::Image::UniquePtr _imgTrMsg;
+  // <---- Messages
 };
 
 } // namespace stereolabs
