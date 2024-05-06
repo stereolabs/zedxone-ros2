@@ -48,7 +48,8 @@ protected:
   void callback_frameGrab();
 
   void callback_updateDiagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  rcl_interfaces::msg::SetParametersResult callback_paramChange(std::vector<rclcpp::Parameter> parameters);
+  rcl_interfaces::msg::SetParametersResult callback_paramChange(
+    std::vector<rclcpp::Parameter> parameters);
 
   void initParameters();
   void initDebugParams();
@@ -76,10 +77,43 @@ private:
   std::string _resolution = "HD1080";
   bool _swapRB = false;
   std::string _pxFormat;
-  int _cam_timeout_msec = 2000;
+  int _camTimeout_msec = 2000;  
 
   // Dynamic
   OnSetParametersCallbackHandle::SharedPtr _paramChangeCallbackHandle;
+
+  bool _autoExposure;           // * Enable Automatic Exposure
+  int _exposureRange_min;       // * Minimum value for Automatic Exposure
+  int _exposureRange_max;       // * Maximum value for Automatic Exposure
+  int _manualExposure_usec;     // * Manual Exposure time
+
+  bool _autoAnalogGain;            // * Enable Automatic Analog Gain
+  int _analogFrameGainRange_min;     // * Minimum value for Automatic Analog Gain
+  int _analogFrameGainRange_max;     // * Maximum value for Automatic Analog Gain
+  float _manualAnalogGain_db;         // * Manual Analog Gain
+
+  bool _autoFigitalGain;              // * Enable Automatic Digital Gain
+  float _digitalFrameGainRange_min;     // * Minimum value for Automatic Digital Gain
+  float _digitalFrameGainRange_max;     // * Maximum value for Automatic Digital Gain
+  int _manualDigitalGainValue;          // * Manual Digital Gain [1,256]
+
+  bool _autoWB;     // * Enable Automatic White Balance
+  int _manualWB;       // * Manual White Balance [2800,12000]
+
+  int _aeAntiBanding;             // * Exposure anti banding - OFF, AUTO, 50Hz, 60Hz
+  float _colorSaturation;          // * Color Saturation [0.0,2.0]
+  float _denoising;                 // * Image Denoising [0.0,1.0]
+  float _exposureCompensation;     // * Exposure Compensation [-2.0,2.0]
+  float _sharpening;                // * Image Sharpening [0.0,1.0]
+
+  int _aecAgcRoi_x;   // * AEC-AGC ROI top left x coordinate
+  int _aecAgcRoi_y;   // * AEC-AGC ROI top left y coordinate
+  int _aecAgcRoi_w;   // * AEC-AGC ROI width
+  int _aecAgcRoi_h;   // * AEC-AGC ROI height
+
+  float _toneMapping_R_gamma;     // [1.5,3.5]
+  float _toneMapping_G_gamma;     // [1.5,3.5]
+  float _toneMapping_B_gamma;     // [1.5,3.5]
   // <---- Parameters
 
   // ----> Running parameters

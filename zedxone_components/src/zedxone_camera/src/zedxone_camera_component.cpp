@@ -127,7 +127,7 @@ ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
   // <---- Start grab timer
 #endif
 
-    // Dynamic parameters callback
+  // Dynamic parameters callback
   _paramChangeCallbackHandle = add_on_set_parameters_callback(
     std::bind(&ZedXOneCamera::callback_paramChange, this, _1));
 }
@@ -269,7 +269,7 @@ void ZedXOneCamera::initCamParams()
     get_logger(), " * Resolution: " << _resolution << " [" << _width << "x" << _height << "]");
 
   getParam("camera.framerate", _fps, _fps, " * Framerate: ");
-  getParam("camera.timeout_msec", _cam_timeout_msec, _cam_timeout_msec, " * Timeous [msec]: ");
+  getParam("camera.timeout_msec", _camTimeout_msec, _camTimeout_msec, " * Timeous [msec]: ");
 
   getParam("camera.swap_rb", _swapRB, _swapRB);
   RCLCPP_INFO_STREAM(
@@ -352,7 +352,7 @@ void ZedXOneCamera::callback_frameGrab()
     while (!_cam->isNewFrame()) {
       auto end = std::chrono::system_clock::now();
       auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-      if (elapsed.count() > _cam_timeout_msec) {
+      if (elapsed.count() > _camTimeout_msec) {
         RCLCPP_FATAL(get_logger(), "Camera timeout. Disconnected?");
         exit(EXIT_FAILURE);     // TODO Recover camera?
       }
@@ -420,7 +420,8 @@ void ZedXOneCamera::callback_updateDiagnostic(diagnostic_updater::DiagnosticStat
   stat.addf("Image Transp. Pub.", "Subscribers: %d", _imgTranspSubs);
 }
 
-rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(std::vector<rclcpp::Parameter> parameters) 
+rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
+  std::vector<rclcpp::Parameter> parameters)
 {
   DEBUG_STREAM_GEN("Parameter change callback");
 

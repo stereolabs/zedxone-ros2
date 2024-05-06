@@ -11,6 +11,34 @@ camera:
     pixel_format: 'COLOR_RGBA' # 'COLOR_RGBA', 'COLOR_RGB', 'RAW_BAYER'
     timeout_msec: 2000 # Camera timeout in milliseconds
 
+    dynamic:
+        auto_exposure: true # Enable Automatic Exposure
+        exposure_range_min: 28 # Minimum value for Automatic Exposure
+        exposure_range_max: 66000 # Maximum value for Automatic Exposure
+        manual_exposure_usec: 2000 # Manual Exposure time
+        auto_analog_gain: true # Enable Automatic Analog Gain
+        analog_frame_gain_range_min: 0.1 # Minimum value for Automatic Analog Gain
+        analog_frame_gain_range_max: 30.0# Maximum value for Automatic Analog Gain
+        manual_analog_gain_db: 1.0 # Manual Analog Gain
+        auto_digital_gain: bool # Enable Automatic Digital Gain
+        digital_frame_gain_range_min: 1 # Minimum value for Automatic Digital Gain
+        digital_frame_gain_range_max: 256 # Maximum value for Automatic Digital Gain
+        manual_digital_gain_value: 128 # Manual Digital Gain [1,256]
+        auto_wb: true # Enable Automatic White Balance
+        manual_wb: 5000 # Manual White Balance [2800,12000]
+        ae_anti_banding: 'AUTO' # Exposure anti banding - 'OFF', 'AUTO', '50Hz', '60Hz'
+        color_saturation: 1.0 # Color Saturation [0.0,2.0]
+        denoising: 0.5# Image Denoising [0.0,1.0]
+        exposure_compensation: 0.0 # Exposure Compensation [-2.0,2.0]
+        sharpening: 1.0 # Image Sharpening [0.0,1.0]
+        aec_agc_roi_x: -1 # AEC-AGC ROI top left x coordinate
+        aec_agc_roi_y: -1 # AEC-AGC ROI top left y coordinate
+        aec_agc_roi_w: -1 # AEC-AGC ROI width
+        aec_agc_roi_h: -1 # AEC-AGC ROI height
+        tone_mapping_r_gamma: 2.0 # [1.5,3.5]
+        tone_mapping_g_gamma: 2.0 # [1.5,3.5]
+        tone_mapping_b_gamma: 2.0 # [1.5,3.5]
+
 debug:
     grab_verbose_level: 6
     general: false
