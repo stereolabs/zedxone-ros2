@@ -692,6 +692,24 @@ void ZedXOneCamera::updateDynamicControls()
     DEBUG_CONTROLS("Set Saturation OK");
   }
   // <---- Saturation
+
+  // ----> Denoising
+  res = _cam->setDenoisingValue(_denoising);
+  if (res != 0) {
+    RCLCPP_WARN(get_logger(), "Failed to set Denoising");
+  } else {
+    DEBUG_CONTROLS("Set Denoising OK");
+  }
+  // <---- Denoising
+
+  // ----> Exposure Compensation
+  res = _cam->setExposureCompensation(_exposureCompensation);
+  if (res != 0) {
+    RCLCPP_WARN(get_logger(), "Failed to set Exposure Compensation");
+  } else {
+    DEBUG_CONTROLS("Set Exposure Compensation OK");
+  }
+  // <---- Exposure Compensation
 }
 
 } // namespace stereolabs
