@@ -20,7 +20,7 @@
                 manual_exposure_usec: 2000 # Manual Exposure time
                 auto_analog_gain: true # Enable Automatic Analog Gain
                 analog_frame_gain_range_min: 0.1 # Minimum value for Automatic Analog Gain
-                analog_frame_gain_range_max: 30.0# Maximum value for Automatic Analog Gain
+                analog_frame_gain_range_max: 30.0 # Maximum value for Automatic Analog Gain
                 manual_analog_gain_db: 1.0 # Manual Analog Gain
                 auto_digital_gain: bool # Enable Automatic Digital Gain
                 digital_frame_gain_range_min: 1 # Minimum value for Automatic Digital Gain
