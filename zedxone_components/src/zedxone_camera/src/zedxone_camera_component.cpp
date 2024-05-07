@@ -311,7 +311,7 @@ void ZedXOneCamera::initCamParams()
   getParam("camera.dynamic.auto_exposure", _autoExposure, _autoExposure, std::string(), true);
   RCLCPP_INFO_STREAM(
     get_logger(),
-    " * [Dyn] Automatic exposure: " << (_autoExposure ? "TRUE" : "FALSE"));
+    " * [Dyn] Automatic Exposure: " << (_autoExposure ? "TRUE" : "FALSE"));
 
   getParam(
     "camera.dynamic.exposure_range_min", _exposureRange_min, _exposureRange_min,
@@ -587,9 +587,9 @@ void ZedXOneCamera::updateDynamicControls()
   if (_autoExposure) {
     res = _cam->setAutomaticExposure();
     if (res != 0) {
-      RCLCPP_WARN(get_logger(), "Failed to enable automatic exposure");
+      RCLCPP_WARN(get_logger(), "Failed to enable automatic Exposure");
     } else {
-      DEBUG_CONTROLS("Automatic exposure enabled");
+      DEBUG_CONTROLS("Automatic Exposure enabled");
     }
   } else {
     res = _cam->setFrameExposureRange(_exposureRange_min, _exposureRange_max);
@@ -656,6 +656,33 @@ void ZedXOneCamera::updateDynamicControls()
     }
   }
   // <---- Digital Gain
+
+  // ----> White Balance
+  if (_autoWB) {
+    res = _cam->setAutomaticWhiteBalance();
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to enable automatic White Balance");
+    } else {
+      DEBUG_CONTROLS("Automatic White Balance enabled");
+    }
+  } else {
+    res = _cam->setManualWhiteBalance(static_cast<uint32_t>(_manualWB));
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to set White Balance");
+    } else {
+      DEBUG_CONTROLS("Set White Balance OK");
+    }
+  }
+  // <---- White Balance
+
+  // ----> Anti Banding
+  res = _cam->setAEAntiBanding(_aeAntiBanding);
+  if (res != 0) {
+    RCLCPP_WARN(get_logger(), "Failed to set AE Anti Banding");
+  } else {
+    DEBUG_CONTROLS("Set AE Anti Banding OK");
+  }
+  // <---- Anti Banding
 }
 
 } // namespace stereolabs
