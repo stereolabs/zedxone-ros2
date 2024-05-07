@@ -91,13 +91,13 @@ private:
   int _manualExposure_usec = 2000;     // Manual Exposure time
 
   bool _autoAnalogGain;            // * Enable Automatic Analog Gain
-  int _analogFrameGainRange_min;     // * Minimum value for Automatic Analog Gain
-  int _analogFrameGainRange_max;     // * Maximum value for Automatic Analog Gain
+  float _analogFrameGainRange_min;     // * Minimum value for Automatic Analog Gain
+  float _analogFrameGainRange_max;     // * Maximum value for Automatic Analog Gain
   float _manualAnalogGain_db;         // * Manual Analog Gain
 
   bool _autoDigitalGain;              // * Enable Automatic Digital Gain
-  float _digitalFrameGainRange_min;     // * Minimum value for Automatic Digital Gain
-  float _digitalFrameGainRange_max;     // * Maximum value for Automatic Digital Gain
+  int _digitalFrameGainRange_min;     // * Minimum value for Automatic Digital Gain
+  int _digitalFrameGainRange_max;     // * Maximum value for Automatic Digital Gain
   int _manualDigitalGainValue;          // * Manual Digital Gain [1,256]
 
   bool _autoWB;     // * Enable Automatic White Balance
@@ -124,7 +124,7 @@ private:
   int _width;
   int _height;
   oc::PixelMode _pxMode;
-  std::atomic<bool> _checkDynParams = true;
+  std::atomic<bool> _setDynParams;
   // <---- Running parameters
 
   // ----> Running variables

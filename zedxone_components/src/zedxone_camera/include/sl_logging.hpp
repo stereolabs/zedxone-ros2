@@ -47,7 +47,7 @@
       stream_arg); \
   }
 
-  // Camera controls
+// Camera controls
 #define DEBUG_CONTROLS(...) \
   if (_debugControls) RCLCPP_DEBUG (get_logger(), __VA_ARGS__)
 #define DEBUG_ONCE_CONTROLS(...) \

@@ -30,6 +30,7 @@ const int QOS_QUEUE_SIZE = 10;
 ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
 : Node("zedxone_node", options),
   _stopNode(false),
+  _setDynParams(true),
   _grabFreqStopWatch(get_clock()),
   _diagUpdater(this),
   _qos(QOS_QUEUE_SIZE)
@@ -110,6 +111,7 @@ ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
   // <---- Create messages
 
   // ----> Create publishers
+  RCLCPP_INFO(get_logger(), "*** Publishers ***");
   _pubImgTransp = image_transport::create_publisher(this, "image", _qos.get_rmw_qos_profile());
   RCLCPP_INFO_STREAM(get_logger(), "Advertised on topic: " << _pubImgTransp.getTopic());
   // <---- Create publishers
@@ -307,59 +309,65 @@ void ZedXOneCamera::initCamParams()
   // Dynamic parameters
 
   getParam("camera.dynamic.auto_exposure", _autoExposure, _autoExposure, std::string(), true);
-  RCLCPP_INFO_STREAM(get_logger(), " * Automatic exposure: " << (_autoExposure ? "TRUE" : "FALSE"));
+  RCLCPP_INFO_STREAM(
+    get_logger(),
+    " * [Dyn] Automatic exposure: " << (_autoExposure ? "TRUE" : "FALSE"));
 
   getParam(
     "camera.dynamic.exposure_range_min", _exposureRange_min, _exposureRange_min,
-    "* Exposure range min.: ", true);
+    " * [Dyn] Exposure range min.: ", true);
   getParam(
     "camera.dynamic.exposure_range_max", _exposureRange_max, _exposureRange_max,
-    "* Exposure range max.: ", true);
+    " * [Dyn] Exposure range max.: ", true);
 
   getParam(
     "camera.dynamic.manual_exposure_usec", _manualExposure_usec, _manualExposure_usec,
-    "* Manual Exposure [usec]: ", true);
+    " * [Dyn] Manual Exposure [usec]: ", true);
 
   getParam(
     "camera.dynamic.auto_analog_gain", _autoAnalogGain, _autoAnalogGain, std::string(),
     true);
   RCLCPP_INFO_STREAM(
     get_logger(),
-    " * Automatic Analog gain: " << (_autoAnalogGain ? "TRUE" : "FALSE"));
+    " * [Dyn] Automatic Analog gain: " << (_autoAnalogGain ? "TRUE" : "FALSE"));
 
   getParam(
     "camera.dynamic.analog_frame_gain_range_min", _analogFrameGainRange_min,
-    _analogFrameGainRange_min, "* Analog Gain range min.: ", true);
+    _analogFrameGainRange_min, " * [Dyn] Analog Gain range min.: ", true);
   getParam(
     "camera.dynamic.analog_frame_gain_range_max", _analogFrameGainRange_max,
-    _analogFrameGainRange_max, "* Analog Gain range max.: ", true);
+    _analogFrameGainRange_max, " * [Dyn] Analog Gain range max.: ", true);
 
   getParam(
     "camera.dynamic.manual_analog_gain_db", _manualAnalogGain_db, _manualAnalogGain_db,
-    "* Manual Analog Gain [dB]: ", true);
+    " * [Dyn] Manual Analog Gain [dB]: ", true);
 
   getParam(
     "camera.dynamic.auto_digital_gain", _autoDigitalGain, _autoDigitalGain,
     std::string(), true);
   RCLCPP_INFO_STREAM(
     get_logger(),
-    " * Automatic Digital gain: " << (_autoDigitalGain ? "TRUE" : "FALSE"));
+    " * [Dyn] Automatic Digital gain: " << (_autoDigitalGain ? "TRUE" : "FALSE"));
 
   getParam(
     "camera.dynamic.digital_frame_gain_range_min", _digitalFrameGainRange_min,
-    _digitalFrameGainRange_min, "* Digital Gain range min.: ", true);
+    _digitalFrameGainRange_min, " * [Dyn] Digital Gain range min.: ", true);
   getParam(
     "camera.dynamic.digital_frame_gain_range_max", _digitalFrameGainRange_max,
-    _digitalFrameGainRange_max, "* Digital Gain range max.: ", true);
+    _digitalFrameGainRange_max, " * [Dyn] Digital Gain range max.: ", true);
 
   getParam(
     "camera.dynamic.manual_digital_gain_value", _manualDigitalGainValue,
-    _manualDigitalGainValue, "* Manual Digital Gain: ", true);
+    _manualDigitalGainValue, " * [Dyn] Manual Digital Gain: ", true);
 
   getParam("camera.dynamic.auto_wb", _autoWB, _autoWB, std::string(), true);
-  RCLCPP_INFO_STREAM(get_logger(), " * Automatic White Balance: " << (_autoWB ? "TRUE" : "FALSE"));
+  RCLCPP_INFO_STREAM(
+    get_logger(),
+    " * [Dyn] Automatic White Balance: " << (_autoWB ? "TRUE" : "FALSE"));
 
-  getParam("camera.dynamic.manual_wb", _manualWB, _manualWB, "* Manual White Balance [°]: ", true);
+  getParam(
+    "camera.dynamic.manual_wb", _manualWB, _manualWB, " * [Dyn] Manual White Balance [°]: ",
+    true);
 
   std::string val_str = "AUTO";
   getParam("camera.dynamic.ae_anti_banding", val_str, val_str, std::string(), true);
@@ -374,32 +382,38 @@ void ZedXOneCamera::initCamParams()
     _aeAntiBanding = oc::AEANTIBANDING::AUTO;
     val_str = "AUTO";
   }
-  RCLCPP_INFO_STREAM(get_logger(), " * Anti Banding: " << val_str);
+  RCLCPP_INFO_STREAM(get_logger(), " * [Dyn] Anti Banding: " << val_str);
 
-  getParam("camera.dynamic.saturation", _colorSaturation, _colorSaturation, "* Saturation: ", true);
-  getParam("camera.dynamic.denoising", _denoising, _denoising, "* Denoising: ", true);
+  getParam(
+    "camera.dynamic.saturation", _colorSaturation, _colorSaturation, " * [Dyn] Saturation: ",
+    true);
+  getParam("camera.dynamic.denoising", _denoising, _denoising, " * [Dyn] Denoising: ", true);
   getParam(
     "camera.dynamic.exposure_compensation", _exposureCompensation, _exposureCompensation,
-    "* Exposure Compensation: ", true);
-  getParam("camera.dynamic.sharpening", _sharpening, _sharpening, "* Sharpening: ", true);
+    " * [Dyn] Exposure Compensation: ", true);
+  getParam("camera.dynamic.sharpening", _sharpening, _sharpening, " * [Dyn] Sharpening: ", true);
 
   getParam(
     "camera.dynamic.tone_mapping_r_gamma", _toneMapping_R_gamma, _toneMapping_R_gamma,
-    "* Tone Mapping Gamma RED: ", true);
+    " * [Dyn] Tone Mapping Gamma RED: ", true);
   getParam(
     "camera.dynamic.tone_mapping_g_gamma", _toneMapping_G_gamma, _toneMapping_G_gamma,
-    "* Tone Mapping Gamma GREEN: ", true);
+    " * [Dyn] Tone Mapping Gamma GREEN: ", true);
   getParam(
     "camera.dynamic.tone_mapping_b_gamma", _toneMapping_B_gamma, _toneMapping_B_gamma,
-    "* Tone Mapping Gamma BLUE: ", true);
+    " * [Dyn] Tone Mapping Gamma BLUE: ", true);
 
-  getParam("camera.dynamic.aec_agc_roi_x", _aecAgcRoi_x, _aecAgcRoi_x, "* AEC/AGC ROI X: ", true);
-  getParam("camera.dynamic.aec_agc_roi_y", _aecAgcRoi_y, _aecAgcRoi_y, "* AEC/AGC ROI Y: ", true);
   getParam(
-    "camera.dynamic.aec_agc_roi_w", _aecAgcRoi_w, _aecAgcRoi_w, "* AEC/AGC ROI Width: ",
+    "camera.dynamic.aec_agc_roi_x", _aecAgcRoi_x, _aecAgcRoi_x, " * [Dyn] AEC/AGC ROI X: ",
     true);
   getParam(
-    "camera.dynamic.aec_agc_roi_h", _aecAgcRoi_h, _aecAgcRoi_h, "* AEC/AGC ROI Height: ",
+    "camera.dynamic.aec_agc_roi_y", _aecAgcRoi_y, _aecAgcRoi_y, " * [Dyn] AEC/AGC ROI Y: ",
+    true);
+  getParam(
+    "camera.dynamic.aec_agc_roi_w", _aecAgcRoi_w, _aecAgcRoi_w, " * [Dyn] AEC/AGC ROI Width: ",
+    true);
+  getParam(
+    "camera.dynamic.aec_agc_roi_h", _aecAgcRoi_h, _aecAgcRoi_h, " * [Dyn] AEC/AGC ROI Height: ",
     true);
 
 }
@@ -496,7 +510,8 @@ void ZedXOneCamera::callback_frameGrab()
     // <---- Grab freq calculation
 
     // Update Dynamic controls if required
-    if(_checkDynParams) {
+    if (_setDynParams) {
+      _setDynParams = false;
       updateDynamicControls();
     }
   }
@@ -557,14 +572,15 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
       get_logger(), "Correctly set " << count << "/" <<
         parameters.size() <<
         " parameters");
-    _checkDynParams = true;
+    _setDynParams = true;
   }
 
   return result;
 }
 
-void ZedXOneCamera::updateDynamicControls() {
-  
+void ZedXOneCamera::updateDynamicControls()
+{
+  DEBUG_CONTROLS("*** Dynamic Camera Controls ***");
   int res;
 
   // ----> Exposure
@@ -572,20 +588,48 @@ void ZedXOneCamera::updateDynamicControls() {
     res = _cam->setAutomaticExposure();
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to enable automatic exposure");
-    } else {;
-      DEBUG_CONTROLS( "Automatic exposure enabled")
+    } else {
+      DEBUG_CONTROLS("Automatic exposure enabled");
     }
   } else {
     res = _cam->setFrameExposureRange(_exposureRange_min, _exposureRange_max);
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to set Exposure Range");
+    } else {
+      DEBUG_CONTROLS("Set Frame Exposure Range OK");
     }
     res = _cam->setManualExposure(_manualExposure_usec);
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to set Exposure");
+    } else {
+      DEBUG_CONTROLS("Set Exposure OK");
     }
   }
   // <---- Exposure
+
+  // ----> Analog Gain
+  if(_autoAnalogGain) {
+    res = _cam->setAutomaticAnalogGain();
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to enable automatic Analog Gain");
+    } else {
+      DEBUG_CONTROLS("Automatic Analog Gain enabled");
+    }
+  } else {
+    res = _cam->setAnalogFrameGainRange(_analogFrameGainRange_min, _analogFrameGainRange_max);
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to set Analog Gain Range");
+    } else {
+      DEBUG_CONTROLS("Set Frame Analog Gain Range OK");
+    }
+    res = _cam->setManualAnalogGainReal(_manualAnalogGain_db);
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to set Analog Gain");
+    } else {
+      DEBUG_CONTROLS("Set Analog Gain OK");
+    }
+  }
+  // <---- Analog Gain
 }
 
 } // namespace stereolabs

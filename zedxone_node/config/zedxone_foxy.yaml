@@ -20,7 +20,7 @@ camera:
         analog_frame_gain_range_min: 0.1 # Minimum value for Automatic Analog Gain
         analog_frame_gain_range_max: 30.0 # Maximum value for Automatic Analog Gain
         manual_analog_gain_db: 1.0 # Manual Analog Gain
-        auto_digital_gain: bool # Enable Automatic Digital Gain
+        auto_digital_gain: true # Enable Automatic Digital Gain
         digital_frame_gain_range_min: 1 # Minimum value for Automatic Digital Gain
         digital_frame_gain_range_max: 256 # Maximum value for Automatic Digital Gain
         manual_digital_gain_value: 128 # Manual Digital Gain [1,256]
@@ -28,7 +28,7 @@ camera:
         manual_wb: 5000 # Manual White Balance [2800,12000]
         ae_anti_banding: 'AUTO' # Exposure anti banding - 'OFF', 'AUTO', '50Hz', '60Hz'
         color_saturation: 1.0 # Color Saturation [0.0,2.0]
-        denoising: 0.5# Image Denoising [0.0,1.0]
+        denoising: 0.5 # Image Denoising [0.0,1.0]
         exposure_compensation: 0.0 # Exposure Compensation [-2.0,2.0]
         sharpening: 1.0 # Image Sharpening [0.0,1.0]
         aec_agc_roi_x: -1 # AEC-AGC ROI top left x coordinate
@@ -40,7 +40,7 @@ camera:
         tone_mapping_b_gamma: 2.0 # [1.5,3.5]
 
 debug:
-    grab_verbose_level: 6
+    grab_verbose_level: 0
     general: false
     diagnostic: false
     controls: true
