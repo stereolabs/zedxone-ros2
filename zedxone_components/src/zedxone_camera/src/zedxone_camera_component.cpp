@@ -659,7 +659,7 @@ void ZedXOneCamera::updateDynamicControls()
 
   // ----> White Balance
   if (_autoWB) {
-    res = _cam->setAutomaticWhiteBalance();
+    res = _cam->setAutomaticWhiteBalance(1);
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to enable automatic White Balance");
     } else {
