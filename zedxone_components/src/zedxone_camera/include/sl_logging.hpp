@@ -47,4 +47,19 @@
       stream_arg); \
   }
 
+  // Camera controls
+#define DEBUG_CONTROLS(...) \
+  if (_debugControls) RCLCPP_DEBUG (get_logger(), __VA_ARGS__)
+#define DEBUG_ONCE_CONTROLS(...) \
+  if (_debugControls) RCLCPP_DEBUG_ONCE (get_logger(), __VA_ARGS__)
+#define DEBUG_STREAM_CONTROLS(stream_arg) \
+  if (_debugControls) RCLCPP_DEBUG_STREAM (get_logger(), stream_arg)
+#define DEBUG_STREAM_THROTTLE_CONTROLS(duration, stream_arg) \
+  if (_debugControls) { \
+    rclcpp::Clock steady_clock(RCL_STEADY_TIME); \
+    RCLCPP_DEBUG_STREAM_THROTTLE( \
+      get_logger(), steady_clock, duration, \
+      stream_arg); \
+  }
+
 #endif // SL_LOGGING_HPP

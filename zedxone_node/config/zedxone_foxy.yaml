@@ -43,5 +43,6 @@ debug:
     grab_verbose_level: 6
     general: false
     diagnostic: false
+    controls: true
 
 

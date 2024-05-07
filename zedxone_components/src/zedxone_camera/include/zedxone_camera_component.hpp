@@ -55,6 +55,8 @@ protected:
   void initDebugParams();
   void initCamParams();
 
+  void updateDynamicControls();
+
   template<typename T>
   void getParam(
     std::string paramName, T defValue, T & outVal,
@@ -69,6 +71,7 @@ private:
   int _argusVerbose = 0;
   bool _debugGeneral = false;
   bool _debugDiagnostic = false;
+  bool _debugControls = false;
 
   // Camera
   std::string _model;

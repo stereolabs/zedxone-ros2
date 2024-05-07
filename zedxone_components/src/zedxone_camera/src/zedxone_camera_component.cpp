@@ -114,24 +114,8 @@ ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
   RCLCPP_INFO_STREAM(get_logger(), "Advertised on topic: " << _pubImgTransp.getTopic());
   // <---- Create publishers
 
-  // ----> Set default values for dynamic parameters
-  int res;
-  if(_autoExposure) {
-    res = _cam->setAutomaticExposure();
-     if (res != 0) {
-      RCLCPP_WARN( get_logger(), "Failed to enable automatic exposure");
-     }
-  } else {
-    res = _cam->setFrameExposureRange( _exposureRange_min,_exposureRange_max);
-    if (res != 0) {
-      RCLCPP_WARN( get_logger(), "Failed to set Exposure Range");
-     }
-     res = _cam->setManualExposure( _manualExposure_usec );
-    if (res != 0) {
-      RCLCPP_WARN( get_logger(), "Failed to set Exposure");
-     }
-  }
-  // <---- Set default values for dynamic parameters
+  // Set default values for dynamic parameters
+  updateDynamicControls();
 
 #ifdef USE_THREAD
   // Start Grab thread
@@ -219,9 +203,14 @@ void ZedXOneCamera::initDebugParams()
   RCLCPP_INFO(
     get_logger(), " * Debug Diagnostic: %s",
     _debugDiagnostic ? "TRUE" : "FALSE");
+
+  getParam("debug.controls", _debugControls, _debugControls);
+  RCLCPP_INFO(
+    get_logger(), " * Debug Controls: %s",
+    _debugControls ? "TRUE" : "FALSE");
   // ************************************************** //
 
-  _debugMode = _debugGeneral | _debugDiagnostic;
+  _debugMode = _debugGeneral | _debugDiagnostic | _debugControls;
 
   if (_debugMode) {
     rcutils_ret_t res = rcutils_logging_set_logger_level(
@@ -505,7 +494,12 @@ void ZedXOneCamera::callback_frameGrab()
       "Grab period: " << _grabPeriodMean_sec->getAvg() << " sec - Freq: " << 1.0 /
         _grabPeriodMean_sec->getAvg());
     // <---- Grab freq calculation
- }
+
+    // Update Dynamic controls if required
+    if(_checkDynParams) {
+      updateDynamicControls();
+    }
+  }
 
 #ifdef USE_THREAD
   _diagUpdater.force_update();
@@ -560,13 +554,38 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
 
   if (result.successful) {
     RCLCPP_INFO_STREAM(
-      get_logger(), "Correctly set " << count << "/"
-                                     << parameters.size()
-                                     << " parameters");
+      get_logger(), "Correctly set " << count << "/" <<
+        parameters.size() <<
+        " parameters");
     _checkDynParams = true;
-  } 
+  }
 
   return result;
+}
+
+void ZedXOneCamera::updateDynamicControls() {
+  
+  int res;
+
+  // ----> Exposure
+  if (_autoExposure) {
+    res = _cam->setAutomaticExposure();
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to enable automatic exposure");
+    } else {;
+      DEBUG_CONTROLS( "Automatic exposure enabled")
+    }
+  } else {
+    res = _cam->setFrameExposureRange(_exposureRange_min, _exposureRange_max);
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to set Exposure Range");
+    }
+    res = _cam->setManualExposure(_manualExposure_usec);
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to set Exposure");
+    }
+  }
+  // <---- Exposure
 }
 
 } // namespace stereolabs

@@ -45,4 +45,6 @@
             grab_verbose_level: 0
             general: false
             diagnostic: false
+            controls: false
+
 
