@@ -555,7 +555,7 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
   DEBUG_STREAM_GEN("Parameter change callback");
 
   rcl_interfaces::msg::SetParametersResult result;
-  result.successful = true;
+  result.successful = false;
 
   DEBUG_STREAM_GEN("Modifying " << parameters.size() << " parameters");
 
@@ -682,7 +682,16 @@ void ZedXOneCamera::updateDynamicControls()
   } else {
     DEBUG_CONTROLS("Set AE Anti Banding OK");
   }
-  // <---- Anti Banding
+  // <---- Anti Banding 
+
+  // ----> Saturation
+  res = _cam->setColorSaturation(_colorSaturation);
+  if (res != 0) {
+    RCLCPP_WARN(get_logger(), "Failed to set Saturation");
+  } else {
+    DEBUG_CONTROLS("Set Saturation OK");
+  }
+  // <---- Saturation
 }
 
 } // namespace stereolabs
