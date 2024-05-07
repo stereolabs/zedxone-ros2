@@ -12,19 +12,19 @@ camera:
     timeout_msec: 2000 # Camera timeout in milliseconds
 
     dynamic:
-        auto_exposure: true # Enable Automatic Exposure
+        auto_exposure: false # Enable Automatic Exposure
         exposure_range_min: 28 # Minimum value for Automatic Exposure
         exposure_range_max: 66000 # Maximum value for Automatic Exposure
         manual_exposure_usec: 2000 # Manual Exposure time
-        auto_analog_gain: true # Enable Automatic Analog Gain
+        auto_analog_gain: false # Enable Automatic Analog Gain
         analog_frame_gain_range_min: 0.1 # Minimum value for Automatic Analog Gain
         analog_frame_gain_range_max: 30.0 # Maximum value for Automatic Analog Gain
         manual_analog_gain_db: 1.0 # Manual Analog Gain
-        auto_digital_gain: true # Enable Automatic Digital Gain
+        auto_digital_gain: false # Enable Automatic Digital Gain
         digital_frame_gain_range_min: 1 # Minimum value for Automatic Digital Gain
         digital_frame_gain_range_max: 256 # Maximum value for Automatic Digital Gain
         manual_digital_gain_value: 128 # Manual Digital Gain [1,256]
-        auto_wb: true # Enable Automatic White Balance
+        auto_wb: false # Enable Automatic White Balance
         manual_wb: 5000 # Manual White Balance [2800,12000]
         ae_anti_banding: 'AUTO' # Exposure anti banding - 'OFF', 'AUTO', '50Hz', '60Hz'
         color_saturation: 1.0 # Color Saturation [0.0,2.0]

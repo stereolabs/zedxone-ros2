@@ -385,7 +385,7 @@ void ZedXOneCamera::initCamParams()
   RCLCPP_INFO_STREAM(get_logger(), " * [Dyn] Anti Banding: " << val_str);
 
   getParam(
-    "camera.dynamic.saturation", _colorSaturation, _colorSaturation, " * [Dyn] Saturation: ",
+    "camera.dynamic.color_saturation", _colorSaturation, _colorSaturation, " * [Dyn] Saturation: ",
     true);
   getParam("camera.dynamic.denoising", _denoising, _denoising, " * [Dyn] Denoising: ", true);
   getParam(
