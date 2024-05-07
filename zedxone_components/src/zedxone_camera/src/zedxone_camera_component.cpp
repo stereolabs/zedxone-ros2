@@ -682,7 +682,7 @@ void ZedXOneCamera::updateDynamicControls()
   } else {
     DEBUG_CONTROLS("Set AE Anti Banding OK");
   }
-  // <---- Anti Banding 
+  // <---- Anti Banding
 
   // ----> Saturation
   res = _cam->setColorSaturation(_colorSaturation);
@@ -746,6 +746,33 @@ void ZedXOneCamera::updateDynamicControls()
     DEBUG_CONTROLS("Set Tone Mapping BLUE OK");
   }
   // <---- Tone Mapping BLUE
+
+  // ----> AEC AGC ROI
+  if (_aecAgcRoi_x == -1 ||
+    _aecAgcRoi_y == -1 ||
+    _aecAgcRoi_w == -1 ||
+    _aecAgcRoi_h == -1)
+  {
+    res = _cam->resetROIforAECAGC();
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to reset AEC/AGC ROI");
+    } else {
+      DEBUG_CONTROLS("Reset AEC/AGC ROI OK");
+    }
+  } else {
+    oc::Rect roi;
+    roi.x = _aecAgcRoi_x;
+    roi.y = _aecAgcRoi_y;
+    roi.w = _aecAgcRoi_w;
+    roi.h = _aecAgcRoi_h;
+    res = _cam->setROIforAECAGC(roi);
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to set AEC/AGC ROI");
+    } else {
+      DEBUG_CONTROLS("Set AEC/AGC ROI OK");
+    }
+  }
+  // <---- AEC AGC ROI
 }
 
 } // namespace stereolabs
