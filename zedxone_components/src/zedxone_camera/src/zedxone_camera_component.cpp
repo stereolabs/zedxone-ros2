@@ -763,8 +763,8 @@ void ZedXOneCamera::updateDynamicControls()
     oc::Rect roi;
     roi.x = _aecAgcRoi_x;
     roi.y = _aecAgcRoi_y;
-    roi.w = _aecAgcRoi_w;
-    roi.h = _aecAgcRoi_h;
+    roi.width = _aecAgcRoi_w;
+    roi.height = _aecAgcRoi_h;
     res = _cam->setROIforAECAGC(roi);
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to set AEC/AGC ROI");
