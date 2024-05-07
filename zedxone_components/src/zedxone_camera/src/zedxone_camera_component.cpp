@@ -719,6 +719,33 @@ void ZedXOneCamera::updateDynamicControls()
     DEBUG_CONTROLS("Set Sharpening OK");
   }
   // <---- Sharpening
+
+  // ----> Tone Mapping RED
+  res = _cam->setToneMappingFromGamma(0, _toneMapping_R_gamma);
+  if (res != 0) {
+    RCLCPP_WARN(get_logger(), "Failed to set Tone Mapping RED");
+  } else {
+    DEBUG_CONTROLS("Set Tone Mapping RED OK");
+  }
+  // <---- Tone Mapping RED
+
+  // ----> Tone Mapping GREEN
+  res = _cam->setToneMappingFromGamma(1, _toneMapping_G_gamma);
+  if (res != 0) {
+    RCLCPP_WARN(get_logger(), "Failed to set Tone Mapping GREEN");
+  } else {
+    DEBUG_CONTROLS("Set Tone Mapping GREEN OK");
+  }
+  // <---- Tone Mapping GREEN
+
+  // ----> Tone Mapping BLUE
+  res = _cam->setToneMappingFromGamma(2, _toneMapping_B_gamma);
+  if (res != 0) {
+    RCLCPP_WARN(get_logger(), "Failed to set Tone Mapping BLUE");
+  } else {
+    DEBUG_CONTROLS("Set Tone Mapping BLUE OK");
+  }
+  // <---- Tone Mapping BLUE
 }
 
 } // namespace stereolabs
