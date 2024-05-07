@@ -710,6 +710,15 @@ void ZedXOneCamera::updateDynamicControls()
     DEBUG_CONTROLS("Set Exposure Compensation OK");
   }
   // <---- Exposure Compensation
+
+  // ----> Sharpening
+  res = _cam->setSharpening(_sharpening);
+  if (res != 0) {
+    RCLCPP_WARN(get_logger(), "Failed to set Sharpening");
+  } else {
+    DEBUG_CONTROLS("Set Sharpening OK");
+  }
+  // <---- Sharpening
 }
 
 } // namespace stereolabs
