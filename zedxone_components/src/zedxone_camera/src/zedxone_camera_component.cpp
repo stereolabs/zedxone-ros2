@@ -608,7 +608,7 @@ void ZedXOneCamera::updateDynamicControls()
   // <---- Exposure
 
   // ----> Analog Gain
-  if(_autoAnalogGain) {
+  if (_autoAnalogGain) {
     res = _cam->setAutomaticAnalogGain();
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to enable automatic Analog Gain");
@@ -630,6 +630,32 @@ void ZedXOneCamera::updateDynamicControls()
     }
   }
   // <---- Analog Gain
+
+  // ----> Digital Gain
+  if (_autoDigitalGain) {
+    res = _cam->setAutomaticDigitalGain();
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to enable automatic Digital Gain");
+    } else {
+      DEBUG_CONTROLS("Automatic Digital Gain enabled");
+    }
+  } else {
+    res = _cam->setDigitalFrameGainRange(
+      static_cast<float>(_digitalFrameGainRange_min),
+      static_cast<float>(_digitalFrameGainRange_max));
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to set Digital Gain Range");
+    } else {
+      DEBUG_CONTROLS("Set Frame Digital Gain Range OK");
+    }
+    res = _cam->setManualDigitalGainReal(_manualDigitalGainValue);
+    if (res != 0) {
+      RCLCPP_WARN(get_logger(), "Failed to set Digital Gain");
+    } else {
+      DEBUG_CONTROLS("Set Digital Gain OK");
+    }
+  }
+  // <---- Digital Gain
 }
 
 } // namespace stereolabs
