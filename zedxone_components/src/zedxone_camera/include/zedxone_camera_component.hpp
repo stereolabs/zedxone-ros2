@@ -77,7 +77,7 @@ private:
   std::string _resolution = "HD1080";
   bool _swapRB = false;
   std::string _pxFormat;
-  int _camTimeout_msec = 2000;  
+  int _camTimeout_msec = 2000;
 
   // Dynamic
   OnSetParametersCallbackHandle::SharedPtr _paramChangeCallbackHandle;
@@ -121,6 +121,7 @@ private:
   int _width;
   int _height;
   oc::PixelMode _pxMode;
+  std::atomic<bool> _checkDynParams = true;
   // <---- Running parameters
 
   // ----> Running variables

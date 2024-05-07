@@ -19,6 +19,7 @@
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 
 using namespace std::chrono_literals;
+using namespace std::placeholders;
 namespace stereolabs
 {
 
@@ -112,6 +113,25 @@ ZedXOneCamera::ZedXOneCamera(const rclcpp::NodeOptions & options)
   _pubImgTransp = image_transport::create_publisher(this, "image", _qos.get_rmw_qos_profile());
   RCLCPP_INFO_STREAM(get_logger(), "Advertised on topic: " << _pubImgTransp.getTopic());
   // <---- Create publishers
+
+  // ----> Set default values for dynamic parameters
+  int res;
+  if(_autoExposure) {
+    res = _cam->setAutomaticExposure();
+     if (res != 0) {
+      RCLCPP_WARN( get_logger(), "Failed to enable automatic exposure");
+     }
+  } else {
+    res = _cam->setFrameExposureRange( _exposureRange_min,_exposureRange_max);
+    if (res != 0) {
+      RCLCPP_WARN( get_logger(), "Failed to set Exposure Range");
+     }
+     res = _cam->setManualExposure( _manualExposure_usec );
+    if (res != 0) {
+      RCLCPP_WARN( get_logger(), "Failed to set Exposure");
+     }
+  }
+  // <---- Set default values for dynamic parameters
 
 #ifdef USE_THREAD
   // Start Grab thread
@@ -300,26 +320,52 @@ void ZedXOneCamera::initCamParams()
   getParam("camera.dynamic.auto_exposure", _autoExposure, _autoExposure, std::string(), true);
   RCLCPP_INFO_STREAM(get_logger(), " * Automatic exposure: " << (_autoExposure ? "TRUE" : "FALSE"));
 
-  getParam("camera.dynamic.exposure_range_min", _exposureRange_min, _exposureRange_min, "* Exposure range min.: ", true);
-  getParam("camera.dynamic.exposure_range_max", _exposureRange_max, _exposureRange_max, "* Exposure range max.: ", true);
+  getParam(
+    "camera.dynamic.exposure_range_min", _exposureRange_min, _exposureRange_min,
+    "* Exposure range min.: ", true);
+  getParam(
+    "camera.dynamic.exposure_range_max", _exposureRange_max, _exposureRange_max,
+    "* Exposure range max.: ", true);
 
-  getParam("camera.dynamic.manual_exposure_usec", _manualExposure_usec, _manualExposure_usec, "* Manual Exposure [usec]: ", true);
+  getParam(
+    "camera.dynamic.manual_exposure_usec", _manualExposure_usec, _manualExposure_usec,
+    "* Manual Exposure [usec]: ", true);
 
-  getParam("camera.dynamic.auto_analog_gain", _autoAnalogGain, _autoAnalogGain, std::string(), true);
-  RCLCPP_INFO_STREAM(get_logger(), " * Automatic Analog gain: " << (_autoAnalogGain ? "TRUE" : "FALSE"));
+  getParam(
+    "camera.dynamic.auto_analog_gain", _autoAnalogGain, _autoAnalogGain, std::string(),
+    true);
+  RCLCPP_INFO_STREAM(
+    get_logger(),
+    " * Automatic Analog gain: " << (_autoAnalogGain ? "TRUE" : "FALSE"));
 
-  getParam("camera.dynamic.analog_frame_gain_range_min", _analogFrameGainRange_min, _analogFrameGainRange_min, "* Analog Gain range min.: ", true);
-  getParam("camera.dynamic.analog_frame_gain_range_max", _analogFrameGainRange_max, _analogFrameGainRange_max, "* Analog Gain range max.: ", true);
+  getParam(
+    "camera.dynamic.analog_frame_gain_range_min", _analogFrameGainRange_min,
+    _analogFrameGainRange_min, "* Analog Gain range min.: ", true);
+  getParam(
+    "camera.dynamic.analog_frame_gain_range_max", _analogFrameGainRange_max,
+    _analogFrameGainRange_max, "* Analog Gain range max.: ", true);
 
-  getParam("camera.dynamic.manual_analog_gain_db", _manualAnalogGain_db, _manualAnalogGain_db, "* Manual Analog Gain [dB]: ", true);
+  getParam(
+    "camera.dynamic.manual_analog_gain_db", _manualAnalogGain_db, _manualAnalogGain_db,
+    "* Manual Analog Gain [dB]: ", true);
 
-  getParam("camera.dynamic.auto_digital_gain", _autoDigitalGain, _autoDigitalGain, std::string(), true);
-  RCLCPP_INFO_STREAM(get_logger(), " * Automatic Digital gain: " << (_autoDigitalGain ? "TRUE" : "FALSE"));
+  getParam(
+    "camera.dynamic.auto_digital_gain", _autoDigitalGain, _autoDigitalGain,
+    std::string(), true);
+  RCLCPP_INFO_STREAM(
+    get_logger(),
+    " * Automatic Digital gain: " << (_autoDigitalGain ? "TRUE" : "FALSE"));
 
-  getParam("camera.dynamic.digital_frame_gain_range_min", _digitalFrameGainRange_min, _digitalFrameGainRange_min, "* Digital Gain range min.: ", true);
-  getParam("camera.dynamic.digital_frame_gain_range_max", _digitalFrameGainRange_max, _digitalFrameGainRange_max, "* Digital Gain range max.: ", true);
+  getParam(
+    "camera.dynamic.digital_frame_gain_range_min", _digitalFrameGainRange_min,
+    _digitalFrameGainRange_min, "* Digital Gain range min.: ", true);
+  getParam(
+    "camera.dynamic.digital_frame_gain_range_max", _digitalFrameGainRange_max,
+    _digitalFrameGainRange_max, "* Digital Gain range max.: ", true);
 
-  getParam("camera.dynamic.manual_digital_gain_value", _manualDigitalGainValue, _manualDigitalGainValue, "* Manual Digital Gain: ", true);
+  getParam(
+    "camera.dynamic.manual_digital_gain_value", _manualDigitalGainValue,
+    _manualDigitalGainValue, "* Manual Digital Gain: ", true);
 
   getParam("camera.dynamic.auto_wb", _autoWB, _autoWB, std::string(), true);
   RCLCPP_INFO_STREAM(get_logger(), " * Automatic White Balance: " << (_autoWB ? "TRUE" : "FALSE"));
@@ -329,31 +375,43 @@ void ZedXOneCamera::initCamParams()
   std::string val_str = "AUTO";
   getParam("camera.dynamic.ae_anti_banding", val_str, val_str, std::string(), true);
 
-  if(val_str=="OFF") {
+  if (val_str == "OFF") {
     _aeAntiBanding = oc::AEANTIBANDING::OFF;
-  } else if(val_str=="50Hz") {
+  } else if (val_str == "50Hz") {
     _aeAntiBanding = oc::AEANTIBANDING::HZ50;
-  } else if(val_str=="60Hz") {
+  } else if (val_str == "60Hz") {
     _aeAntiBanding = oc::AEANTIBANDING::HZ60;
   } else {
     _aeAntiBanding = oc::AEANTIBANDING::AUTO;
-    val_str  = "AUTO";
+    val_str = "AUTO";
   }
   RCLCPP_INFO_STREAM(get_logger(), " * Anti Banding: " << val_str);
 
   getParam("camera.dynamic.saturation", _colorSaturation, _colorSaturation, "* Saturation: ", true);
   getParam("camera.dynamic.denoising", _denoising, _denoising, "* Denoising: ", true);
-  getParam("camera.dynamic.exposure_compensation", _exposureCompensation, _exposureCompensation, "* Exposure Compensation: ", true);
+  getParam(
+    "camera.dynamic.exposure_compensation", _exposureCompensation, _exposureCompensation,
+    "* Exposure Compensation: ", true);
   getParam("camera.dynamic.sharpening", _sharpening, _sharpening, "* Sharpening: ", true);
 
-  getParam("camera.dynamic.tone_mapping_r_gamma", _toneMapping_R_gamma, _toneMapping_R_gamma, "* Tone Mapping Gamma RED: ", true);
-  getParam("camera.dynamic.tone_mapping_g_gamma", _toneMapping_G_gamma, _toneMapping_G_gamma, "* Tone Mapping Gamma GREEN: ", true);
-  getParam("camera.dynamic.tone_mapping_b_gamma", _toneMapping_B_gamma, _toneMapping_B_gamma, "* Tone Mapping Gamma BLUE: ", true);
+  getParam(
+    "camera.dynamic.tone_mapping_r_gamma", _toneMapping_R_gamma, _toneMapping_R_gamma,
+    "* Tone Mapping Gamma RED: ", true);
+  getParam(
+    "camera.dynamic.tone_mapping_g_gamma", _toneMapping_G_gamma, _toneMapping_G_gamma,
+    "* Tone Mapping Gamma GREEN: ", true);
+  getParam(
+    "camera.dynamic.tone_mapping_b_gamma", _toneMapping_B_gamma, _toneMapping_B_gamma,
+    "* Tone Mapping Gamma BLUE: ", true);
 
   getParam("camera.dynamic.aec_agc_roi_x", _aecAgcRoi_x, _aecAgcRoi_x, "* AEC/AGC ROI X: ", true);
   getParam("camera.dynamic.aec_agc_roi_y", _aecAgcRoi_y, _aecAgcRoi_y, "* AEC/AGC ROI Y: ", true);
-  getParam("camera.dynamic.aec_agc_roi_w", _aecAgcRoi_w, _aecAgcRoi_w, "* AEC/AGC ROI Width: ", true);
-  getParam("camera.dynamic.aec_agc_roi_h", _aecAgcRoi_h, _aecAgcRoi_h, "* AEC/AGC ROI Height: ", true);
+  getParam(
+    "camera.dynamic.aec_agc_roi_w", _aecAgcRoi_w, _aecAgcRoi_w, "* AEC/AGC ROI Width: ",
+    true);
+  getParam(
+    "camera.dynamic.aec_agc_roi_h", _aecAgcRoi_h, _aecAgcRoi_h, "* AEC/AGC ROI Height: ",
+    true);
 
 }
 
@@ -447,7 +505,7 @@ void ZedXOneCamera::callback_frameGrab()
       "Grab period: " << _grabPeriodMean_sec->getAvg() << " sec - Freq: " << 1.0 /
         _grabPeriodMean_sec->getAvg());
     // <---- Grab freq calculation
-  }
+ }
 
 #ifdef USE_THREAD
   _diagUpdater.force_update();
@@ -499,6 +557,16 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
 
     DEBUG_STREAM_GEN("Param #" << count << ": " << param.get_name());
   }
+
+  if (result.successful) {
+    RCLCPP_INFO_STREAM(
+      get_logger(), "Correctly set " << count << "/"
+                                     << parameters.size()
+                                     << " parameters");
+    _checkDynParams = true;
+  } 
+
+  return result;
 }
 
 } // namespace stereolabs
