@@ -1,6 +1,6 @@
 <h1 align="center">
    <img src="./images/Picto+STEREOLABS_Black.jpg" alt="Stereolabs" title="Stereolabs" /><br \>
-   ZED X One ROS
+   ZED X One - ROS 2
 </h1>
 
 <p align="center">
