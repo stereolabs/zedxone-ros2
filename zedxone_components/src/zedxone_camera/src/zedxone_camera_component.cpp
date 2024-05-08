@@ -555,21 +555,176 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
   DEBUG_STREAM_GEN("Parameter change callback");
 
   rcl_interfaces::msg::SetParametersResult result;
-  result.successful = false;
+  result.successful = true;
 
   DEBUG_STREAM_GEN("Modifying " << parameters.size() << " parameters");
 
   int count = 0;
+  int count_ok = 0;
 
   for (const rclcpp::Parameter & param : parameters) {
     count++;
 
-    DEBUG_STREAM_GEN("Param #" << count << ": " << param.get_name());
+    DEBUG_STREAM_CONTROLS("Param #" << count << ": " << param.get_name());
+
+    if (param.get_name() == "camera.dynamic.auto_exposure") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_BOOL;
+      if (param.get_type() != correctType) {
+        result.successful = false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _autoExposure = param.as_bool();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _autoExposure);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.exposure_range_min") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
+      if (param.get_type() != correctType) {
+        result.successful = false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _exposureRange_min = param.as_int();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _exposureRange_min);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.exposure_range_max") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
+      if (param.get_type() != correctType) {
+        result.successful = false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _exposureRange_max = param.as_int();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _exposureRange_max);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.manual_exposure_usec") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
+      if (param.get_type() != correctType) {
+        result.successful = false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _manualExposure_usec = param.as_int();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _manualExposure_usec);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.auto_analog_gain") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_BOOL;
+      if (param.get_type() != correctType) {
+        result.successful = false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _autoAnalogGain = param.as_bool();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _autoAnalogGain);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.analog_frame_gain_range_min") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
+      if (param.get_type() != correctType) {
+        result.successful = false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _analogFrameGainRange_min = param.as_double();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _analogFrameGainRange_min);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.analog_frame_gain_range_max") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
+      if (param.get_type() != correctType) {
+        result.successful = false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _analogFrameGainRange_max = param.as_double();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _analogFrameGainRange_max);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.manual_analog_gain_db") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
+      if (param.get_type() != correctType) {
+        result.successful = false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _manualAnalogGain_db = param.as_double();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _manualAnalogGain_db);
+      count_ok++;
+    }
+
+
   }
 
   if (result.successful) {
     RCLCPP_INFO_STREAM(
-      get_logger(), "Correctly set " << count << "/" <<
+      get_logger(), "Correctly set " << count_ok << "/" <<
         parameters.size() <<
         " parameters");
     _setDynParams = true;

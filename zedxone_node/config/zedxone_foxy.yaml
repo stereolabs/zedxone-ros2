@@ -40,9 +40,9 @@ camera:
         tone_mapping_b_gamma: 2.0 # [1.5,3.5]
 
 debug:
-    grab_verbose_level: 0
-    general: false
-    diagnostic: false
-    controls: true
+    grab_verbose_level: 0 # Set the verbose level of the capture library [0-6]
+    general: false # Enable the general debug log of the node
+    diagnostic: false # Enable the diagnostic debug log of the node
+    controls: false # Enable the control debug log of the node
 
 
