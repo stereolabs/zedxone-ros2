@@ -1,8 +1,31 @@
-# ZED X One - ROS 2
+<h1 align="center">
+   <img src="./images/Picto+STEREOLABS_Black.jpg" alt="Stereolabs" title="Stereolabs" /><br \>
+   ZED X One ROS
+</h1>
 
-This repository provides ROS 2 components to use the ZED X One with ROS 2 as a monocular color camera.
+<p align="center">
+  ROS 2 packages for using Stereolabs ZED X One Camera cameras.<br>
+  ROS 2 Foxy Fitzroy (Ubuntu 20.04) - ROS 2 Humble Hawksbill (Ubuntu 22.04)
+</p>
 
-## Build the package
+<hr>
+
+This package lets you use the ZED X One monocular cameras with ROS 2. It provides access to the following data:
+
+  - Color stream
+  - Camera settings
+  - Camera dynamic controls
+
+## Installation
+
+### Prerequisites
+
+- [Ubuntu 20.04 (Focal Fossa)](https://releases.ubuntu.com/focal/) or [Ubuntu 22.04 (Jammy Jellyfish)](https://releases.ubuntu.com/jammy/)
+- ROS 2 Foxy Fitxroy or ROS 2 Humble Hawksbill: 
+  - [Foxy on Ubuntu 20.04](https://docs.ros.org/en/foxy/Installation/Linux-Install-Debians.html)
+  - [Humble on Ubuntu 22.04](https://docs.ros.org/en/humble/Installation/Linux-Install-Debians.html)
+
+### Build the package
 
 The repository requires [colcon](http://design.ros2.org/articles/build_tool.html) to build the pakcages.
 
@@ -30,7 +53,7 @@ source ~/.bashrc
 
 **Note:** If you are using a different console interface like zsh, you have to change the `source` command as follows: `echo source $(pwd)/install/local_setup.zsh >> ~/.zshrc` and `source ~/.zshrc`.
 
-## Start a ZED X One node
+## Starting a ZED X One node
 
 The package `zedxone_node` provides launch files and configuration files.
 
@@ -122,4 +145,10 @@ debug:
 
 ## Stereo configuration
 
-The [ZED ROS 2 Wrapper](https://github.com/stereolabs/zed-ros2-wrapper/) around the ZED SDK allows you to use a virtual Stereo Camera composed of two ZED X One devices with a custom baseline. Read [here](https://www.stereolabs.com/docs/get-started-with-zed-x-one/zed-x-one-stereo) for more information concerning the setup of a Virtual Stereo ZED X One camera.
+The packages of the [ZED ROS 2 Wrapper](https://github.com/stereolabs/zed-ros2-wrapper/) repository allow you to use a virtual Stereo Camera composed of two ZED X One devices with a custom baseline. 
+
+Read [the ZED X One documentation](https://www.stereolabs.com/docs/get-started-with-zed-x-one/zed-x-one-stereo) for more information concerning the setup of a Virtual Stereo ZED X One camera.
+
+## Known issues
+
+* IMU sensor data not yet available
