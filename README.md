@@ -143,6 +143,13 @@ debug:
     controls: false # Enable the control debug log of the node
 ```
 
+`dynamic` parameters can be changed at runtime by using the `rqt` plugin `Parameter reconfigure`, or by command line, e.g.
+
+```bash
+ros2 param set /zedxone/zedxone_node camera.dynamic.auto_exposure false
+ros2 param set /zedxone/zedxone_node camera.dynamic.manual_exposure_usec 500
+```
+
 ## Stereo configuration
 
 The packages of the [ZED ROS 2 Wrapper](https://github.com/stereolabs/zed-ros2-wrapper/) repository allow you to use a virtual Stereo Camera composed of two ZED X One devices with a custom baseline. 
