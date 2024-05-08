@@ -719,6 +719,82 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
       count_ok++;
     }
 
+    if (param.get_name() == "camera.dynamic.auto_digital_gain") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_BOOL;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _autoDigitalGain = param.as_bool();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _autoDigitalGain);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.digital_frame_gain_range_min") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _digitalFrameGainRange_min = param.as_int();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _digitalFrameGainRange_min);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.digital_frame_gain_range_max") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _digitalFrameGainRange_max = param.as_int();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _digitalFrameGainRange_max);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.manual_digital_gain_value") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _manualDigitalGainValue = param.as_int();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _manualDigitalGainValue);
+      count_ok++;
+    }
+
     if (param.get_name() == "camera.dynamic.auto_wb") {
       rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_BOOL;
       if (param.get_type() != correctType) {
@@ -756,11 +832,251 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
           _manualWB);
       count_ok++;
     }
+
+    if (param.get_name() == "camera.dynamic.ae_anti_banding") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_STRING;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      std::string val_str;
+      val_str = param.as_string();
+
+      if (val_str == "OFF") {
+        _aeAntiBanding = oc::AEANTIBANDING::OFF;
+      } else if (val_str == "50Hz") {
+        _aeAntiBanding = oc::AEANTIBANDING::HZ50;
+      } else if (val_str == "60Hz") {
+        _aeAntiBanding = oc::AEANTIBANDING::HZ60;
+      } else {
+        _aeAntiBanding = oc::AEANTIBANDING::AUTO;
+        val_str = "AUTO";
+      }
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          val_str);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.color_saturation") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _colorSaturation = param.as_double();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _colorSaturation);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.denoising") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _denoising = param.as_double();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _denoising);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.exposure_compensation") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _exposureCompensation = param.as_double();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _exposureCompensation);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.sharpening") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _sharpening = param.as_double();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _sharpening);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.tone_mapping_r_gamma") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _toneMapping_R_gamma = param.as_double();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _toneMapping_R_gamma);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.tone_mapping_g_gamma") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _toneMapping_G_gamma = param.as_double();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _toneMapping_G_gamma);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.tone_mapping_b_gamma") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _toneMapping_B_gamma = param.as_double();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _toneMapping_B_gamma);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.aec_agc_roi_x") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _aecAgcRoi_x = param.as_int();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _aecAgcRoi_x);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.aec_agc_roi_y") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _aecAgcRoi_y = param.as_int();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _aecAgcRoi_y);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.aec_agc_roi_w") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _aecAgcRoi_w = param.as_int();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _aecAgcRoi_w);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.aec_agc_roi_h") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _aecAgcRoi_h = param.as_int();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _aecAgcRoi_h);
+      count_ok++;
+    }
   }
 
   if (result.successful) {
-    RCLCPP_INFO_STREAM(
-      get_logger(), "Correctly set " << count_ok << "/" <<
+    DEBUG_STREAM_CONTROLS(
+      "Correctly set " << count_ok << "/" <<
         parameters.size() <<
         " parameters");
     _setDynParams = true;
@@ -787,13 +1103,14 @@ void ZedXOneCamera::updateDynamicControls()
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to set Exposure Range");
     } else {
-      DEBUG_CONTROLS("Set Frame Exposure Range OK");
+      DEBUG_STREAM_CONTROLS(
+        "Set Frame Exposure Range OK: " << _exposureRange_min << "," << _exposureRange_max);
     }
     res = _cam->setManualExposure(_manualExposure_usec);
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to set Exposure");
     } else {
-      DEBUG_CONTROLS("Set Exposure OK");
+      DEBUG_STREAM_CONTROLS("Set Exposure OK: " << _manualExposure_usec);
     }
   }
   // <---- Exposure
@@ -811,13 +1128,15 @@ void ZedXOneCamera::updateDynamicControls()
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to set Analog Gain Range");
     } else {
-      DEBUG_CONTROLS("Set Frame Analog Gain Range OK");
+      DEBUG_STREAM_CONTROLS(
+        "Set Frame Analog Gain Range OK: " << _analogFrameGainRange_min << "," <<
+          _analogFrameGainRange_max);
     }
     res = _cam->setManualAnalogGainReal(_manualAnalogGain_db);
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to set Analog Gain");
     } else {
-      DEBUG_CONTROLS("Set Analog Gain OK");
+      DEBUG_STREAM_CONTROLS("Set Analog Gain OK: " << _manualAnalogGain_db);
     }
   }
   // <---- Analog Gain
@@ -837,13 +1156,15 @@ void ZedXOneCamera::updateDynamicControls()
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to set Digital Gain Range");
     } else {
-      DEBUG_CONTROLS("Set Frame Digital Gain Range OK");
+      DEBUG_STREAM_CONTROLS(
+        "Set Frame Digital Gain Range OK: " << _digitalFrameGainRange_min << "," <<
+          _digitalFrameGainRange_max);
     }
     res = _cam->setManualDigitalGainReal(_manualDigitalGainValue);
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to set Digital Gain");
     } else {
-      DEBUG_CONTROLS("Set Digital Gain OK");
+      DEBUG_STREAM_CONTROLS("Set Digital Gain OK: " << _manualDigitalGainValue);
     }
   }
   // <---- Digital Gain
@@ -861,7 +1182,7 @@ void ZedXOneCamera::updateDynamicControls()
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to set White Balance");
     } else {
-      DEBUG_CONTROLS("Set White Balance OK");
+      DEBUG_STREAM_CONTROLS("Set White Balance OK: " << _manualWB);
     }
   }
   // <---- White Balance
@@ -871,7 +1192,7 @@ void ZedXOneCamera::updateDynamicControls()
   if (res != 0) {
     RCLCPP_WARN(get_logger(), "Failed to set AE Anti Banding");
   } else {
-    DEBUG_CONTROLS("Set AE Anti Banding OK");
+    DEBUG_STREAM_CONTROLS("Set AE Anti Banding OK: " << static_cast<int>(_aeAntiBanding));
   }
   // <---- Anti Banding
 
@@ -880,7 +1201,7 @@ void ZedXOneCamera::updateDynamicControls()
   if (res != 0) {
     RCLCPP_WARN(get_logger(), "Failed to set Saturation");
   } else {
-    DEBUG_CONTROLS("Set Saturation OK");
+    DEBUG_STREAM_CONTROLS("Set Saturation OK: " << _colorSaturation);
   }
   // <---- Saturation
 
@@ -889,7 +1210,7 @@ void ZedXOneCamera::updateDynamicControls()
   if (res != 0) {
     RCLCPP_WARN(get_logger(), "Failed to set Denoising");
   } else {
-    DEBUG_CONTROLS("Set Denoising OK");
+    DEBUG_STREAM_CONTROLS("Set Denoising OK: " << _denoising);
   }
   // <---- Denoising
 
@@ -898,7 +1219,7 @@ void ZedXOneCamera::updateDynamicControls()
   if (res != 0) {
     RCLCPP_WARN(get_logger(), "Failed to set Exposure Compensation");
   } else {
-    DEBUG_CONTROLS("Set Exposure Compensation OK");
+    DEBUG_STREAM_CONTROLS("Set Exposure Compensation OK: " << _exposureCompensation);
   }
   // <---- Exposure Compensation
 
@@ -907,7 +1228,7 @@ void ZedXOneCamera::updateDynamicControls()
   if (res != 0) {
     RCLCPP_WARN(get_logger(), "Failed to set Sharpening");
   } else {
-    DEBUG_CONTROLS("Set Sharpening OK");
+    DEBUG_STREAM_CONTROLS("Set Sharpening OK: " << _sharpening);
   }
   // <---- Sharpening
 
@@ -916,7 +1237,7 @@ void ZedXOneCamera::updateDynamicControls()
   if (res != 0) {
     RCLCPP_WARN(get_logger(), "Failed to set Tone Mapping RED");
   } else {
-    DEBUG_CONTROLS("Set Tone Mapping RED OK");
+    DEBUG_STREAM_CONTROLS("Set Tone Mapping RED OK: " << _toneMapping_R_gamma);
   }
   // <---- Tone Mapping RED
 
@@ -925,7 +1246,7 @@ void ZedXOneCamera::updateDynamicControls()
   if (res != 0) {
     RCLCPP_WARN(get_logger(), "Failed to set Tone Mapping GREEN");
   } else {
-    DEBUG_CONTROLS("Set Tone Mapping GREEN OK");
+    DEBUG_STREAM_CONTROLS("Set Tone Mapping GREEN OK: " << _toneMapping_G_gamma);
   }
   // <---- Tone Mapping GREEN
 
@@ -934,7 +1255,7 @@ void ZedXOneCamera::updateDynamicControls()
   if (res != 0) {
     RCLCPP_WARN(get_logger(), "Failed to set Tone Mapping BLUE");
   } else {
-    DEBUG_CONTROLS("Set Tone Mapping BLUE OK");
+    DEBUG_STREAM_CONTROLS("Set Tone Mapping BLUE OK: " << _toneMapping_B_gamma);
   }
   // <---- Tone Mapping BLUE
 
@@ -960,7 +1281,9 @@ void ZedXOneCamera::updateDynamicControls()
     if (res != 0) {
       RCLCPP_WARN(get_logger(), "Failed to set AEC/AGC ROI");
     } else {
-      DEBUG_CONTROLS("Set AEC/AGC ROI OK");
+      DEBUG_STREAM_CONTROLS(
+        "Set AEC/AGC ROI OK: " << _aecAgcRoi_x << "," << _aecAgcRoi_y << " - " << _aecAgcRoi_w << "x" <<
+          _aecAgcRoi_h);
     }
   }
   // <---- AEC AGC ROI
