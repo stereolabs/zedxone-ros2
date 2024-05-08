@@ -156,6 +156,7 @@ The packages of the [ZED ROS 2 Wrapper](https://github.com/stereolabs/zed-ros2-w
 
 Read [the ZED X One documentation](https://www.stereolabs.com/docs/get-started-with-zed-x-one/zed-x-one-stereo) for more information concerning the setup of a Virtual Stereo ZED X One camera.
 
-## Known issues
+## Known issues and TODO
 
 * IMU sensor data not yet available
+* There is currently no mechanism in place to verify the validity of the dynamic control values
