@@ -570,7 +570,7 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
     if (param.get_name() == "camera.dynamic.auto_exposure") {
       rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_BOOL;
       if (param.get_type() != correctType) {
-        result.successful = false;
+        result.successful |= false;
         result.reason =
           param.get_name() + " must be a " + rclcpp::to_string(correctType);
         RCLCPP_WARN_STREAM(get_logger(), result.reason);
@@ -589,7 +589,7 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
     if (param.get_name() == "camera.dynamic.exposure_range_min") {
       rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
       if (param.get_type() != correctType) {
-        result.successful = false;
+        result.successful |= false;
         result.reason =
           param.get_name() + " must be a " + rclcpp::to_string(correctType);
         RCLCPP_WARN_STREAM(get_logger(), result.reason);
@@ -608,7 +608,7 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
     if (param.get_name() == "camera.dynamic.exposure_range_max") {
       rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
       if (param.get_type() != correctType) {
-        result.successful = false;
+        result.successful |= false;
         result.reason =
           param.get_name() + " must be a " + rclcpp::to_string(correctType);
         RCLCPP_WARN_STREAM(get_logger(), result.reason);
@@ -627,7 +627,7 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
     if (param.get_name() == "camera.dynamic.manual_exposure_usec") {
       rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
       if (param.get_type() != correctType) {
-        result.successful = false;
+        result.successful |= false;
         result.reason =
           param.get_name() + " must be a " + rclcpp::to_string(correctType);
         RCLCPP_WARN_STREAM(get_logger(), result.reason);
@@ -646,7 +646,7 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
     if (param.get_name() == "camera.dynamic.auto_analog_gain") {
       rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_BOOL;
       if (param.get_type() != correctType) {
-        result.successful = false;
+        result.successful |= false;
         result.reason =
           param.get_name() + " must be a " + rclcpp::to_string(correctType);
         RCLCPP_WARN_STREAM(get_logger(), result.reason);
@@ -665,7 +665,7 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
     if (param.get_name() == "camera.dynamic.analog_frame_gain_range_min") {
       rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
       if (param.get_type() != correctType) {
-        result.successful = false;
+        result.successful |= false;
         result.reason =
           param.get_name() + " must be a " + rclcpp::to_string(correctType);
         RCLCPP_WARN_STREAM(get_logger(), result.reason);
@@ -684,7 +684,7 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
     if (param.get_name() == "camera.dynamic.analog_frame_gain_range_max") {
       rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
       if (param.get_type() != correctType) {
-        result.successful = false;
+        result.successful |= false;
         result.reason =
           param.get_name() + " must be a " + rclcpp::to_string(correctType);
         RCLCPP_WARN_STREAM(get_logger(), result.reason);
@@ -703,7 +703,7 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
     if (param.get_name() == "camera.dynamic.manual_analog_gain_db") {
       rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_DOUBLE;
       if (param.get_type() != correctType) {
-        result.successful = false;
+        result.successful |= false;
         result.reason =
           param.get_name() + " must be a " + rclcpp::to_string(correctType);
         RCLCPP_WARN_STREAM(get_logger(), result.reason);
@@ -719,7 +719,43 @@ rcl_interfaces::msg::SetParametersResult ZedXOneCamera::callback_paramChange(
       count_ok++;
     }
 
+    if (param.get_name() == "camera.dynamic.auto_wb") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_BOOL;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
 
+      _autoWB = param.as_bool();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _autoWB);
+      count_ok++;
+    }
+
+    if (param.get_name() == "camera.dynamic.manual_wb") {
+      rclcpp::ParameterType correctType = rclcpp::ParameterType::PARAMETER_INTEGER;
+      if (param.get_type() != correctType) {
+        result.successful |= false;
+        result.reason =
+          param.get_name() + " must be a " + rclcpp::to_string(correctType);
+        RCLCPP_WARN_STREAM(get_logger(), result.reason);
+        break;
+      }
+
+      _manualWB = param.as_int();
+
+      RCLCPP_INFO_STREAM(
+        get_logger(), "Parameter '" << param.get_name() <<
+          "' correctly set to " <<
+          _manualWB);
+      count_ok++;
+    }
   }
 
   if (result.successful) {

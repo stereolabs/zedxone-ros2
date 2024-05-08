@@ -40,7 +40,7 @@ To start the node:
 ros2 launch zedxone_node zedxone.launch.py camera_model:='<model>'
 ```
 
-it is mandatory to replace '<model>' with the model of ZED X One camera you are using, i.e. `'GS'` or `'4K'`.
+it is required to replace `'<model>'` with the model of ZED X One camera that you are using, i.e. `'GS'` or `'4K'`.
 
 The launch command accepts other customization arguments. You can use the `-s` option to retrieve them all:
 
