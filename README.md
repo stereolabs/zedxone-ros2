@@ -10,7 +10,7 @@
 
 <hr>
 
-This package lets you use the ZED X One monocular cameras with ROS 2. It provides access to the following data:
+This package lets you use the ZED X One monocular camera with ROS 2. It provides access to the following data:
 
   - Color stream
   - Camera settings
@@ -27,7 +27,7 @@ This package lets you use the ZED X One monocular cameras with ROS 2. It provide
 
 ### Build the package
 
-The repository requires [colcon](http://design.ros2.org/articles/build_tool.html) to build the pakcages.
+The repository requires [colcon](http://design.ros2.org/articles/build_tool.html) to build the packages.
 
 **Note:** If you haven’t set up your colcon workspace yet, please follow this short [tutorial](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/). 
 
@@ -49,7 +49,7 @@ source ~/.bashrc
 
   ```sudo apt-get install python3-rosdep python3-rosinstall-generator python3-vcstool python3-rosinstall build-essential```
 
-**Note:** The option `--symlink-install` is very important, it allows to use symlinks instead of copying files to the ROS 2 folders during the installation, where possible. Each package in ROS 2 must be installed and all the files used by the nodes must be copied into the installation folders. Using symlinks allows you to modify them in your workspace, reflecting the modification during the next executions without needing to issue a new `colcon build` command. This is true only for all the files that don't need to be compiled (Python scripts, configurations, etc.).
+**Note:** The option `--symlink-install` is important, it allows to use of symlinks instead of copying files to the ROS 2 folders during the installation, where possible. Each package in ROS 2 must be installed and all the files used by the nodes must be copied into the installation folders. Using symlinks allows you to modify them in your workspace, reflecting the modification during the next executions without needing to issue a new `colcon build` command. This is true only for all the files that don't need to be compiled (Python scripts, configurations, etc.).
 
 **Note:** If you are using a different console interface like zsh, you have to change the `source` command as follows: `echo source $(pwd)/install/local_setup.zsh >> ~/.zshrc` and `source ~/.zshrc`.
 
@@ -73,10 +73,10 @@ The launch command accepts other customization arguments. You can use the `-s` o
         (default: 'zedxone')
 
     'camera_model':
-        [REQUIRED] The model of the camera. Using a wrong camera model can disable camera features. Valid choices are: ['GS', '4K']
+        [REQUIRED] The model of the camera. Using the wrong camera model can disable camera features. Valid choices are: ['GS', '4K']
 
     'node_name':
-        The name of the zed_wrapper node. All the topic will have the same prefix: `/<camera_name>/<node_name>/`
+        The name of the zed_wrapper node. All the topics will have the same prefix: `/<camera_name>/<node_name>/`
         (default: 'zedxone_node')
 
     'config_path':
@@ -91,7 +91,7 @@ The launch command accepts other customization arguments. You can use the `-s` o
 
 The launch file `zedxone.launch.py` uses composition to start a `stereolabs::ZedXOneCamera` component in a ROS 2 container.
 
-For more information concerning how to leverage ROS 2 Composition, plese refer to the [official documentation](https://docs.ros.org/en/humble/Concepts/Intermediate/About-Composition.html).
+For more information concerning how to leverage ROS 2 Composition, please refer to the [official documentation](https://docs.ros.org/en/humble/Concepts/Intermediate/About-Composition.html).
 
 ## Node Parameters
 
