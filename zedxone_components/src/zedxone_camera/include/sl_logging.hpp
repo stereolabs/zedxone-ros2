@@ -19,11 +19,11 @@
 
 // General
 #define DEBUG_GEN(...) \
-  if (_debugGeneral) RCLCPP_DEBUG (get_logger(), __VA_ARGS__)
+  if (_debugGeneral) RCLCPP_DEBUG(get_logger(), __VA_ARGS__)
 #define DEBUG_ONCE_GEN(...) \
-  if (_debugGeneral) RCLCPP_DEBUG_ONCE (get_logger(), __VA_ARGS__)
+  if (_debugGeneral) RCLCPP_DEBUG_ONCE(get_logger(), __VA_ARGS__)
 #define DEBUG_STREAM_GEN(stream_arg) \
-  if (_debugGeneral) RCLCPP_DEBUG_STREAM (get_logger(), stream_arg)
+  if (_debugGeneral) RCLCPP_DEBUG_STREAM(get_logger(), stream_arg)
 #define DEBUG_STREAM_THROTTLE_GEN(duration, stream_arg) \
   if (_debugGeneral) { \
     rclcpp::Clock steady_clock(RCL_STEADY_TIME); \
@@ -34,11 +34,11 @@
 
 // Diagnostic
 #define DEBUG_DIAG(...) \
-  if (_debugDiagnostic) RCLCPP_DEBUG (get_logger(), __VA_ARGS__)
+  if (_debugDiagnostic) RCLCPP_DEBUG(get_logger(), __VA_ARGS__)
 #define DEBUG_ONCE_DIAG(...) \
-  if (_debugDiagnostic) RCLCPP_DEBUG_ONCE (get_logger(), __VA_ARGS__)
+  if (_debugDiagnostic) RCLCPP_DEBUG_ONCE(get_logger(), __VA_ARGS__)
 #define DEBUG_STREAM_DIAG(stream_arg) \
-  if (_debugDiagnostic) RCLCPP_DEBUG_STREAM (get_logger(), stream_arg)
+  if (_debugDiagnostic) RCLCPP_DEBUG_STREAM(get_logger(), stream_arg)
 #define DEBUG_STREAM_THROTTLE_DIAG(duration, stream_arg) \
   if (_debugDiagnostic) { \
     rclcpp::Clock steady_clock(RCL_STEADY_TIME); \
@@ -49,11 +49,11 @@
 
 // Camera controls
 #define DEBUG_CONTROLS(...) \
-  if (_debugControls) RCLCPP_DEBUG (get_logger(), __VA_ARGS__)
+  if (_debugControls) RCLCPP_DEBUG(get_logger(), __VA_ARGS__)
 #define DEBUG_ONCE_CONTROLS(...) \
-  if (_debugControls) RCLCPP_DEBUG_ONCE (get_logger(), __VA_ARGS__)
+  if (_debugControls) RCLCPP_DEBUG_ONCE(get_logger(), __VA_ARGS__)
 #define DEBUG_STREAM_CONTROLS(stream_arg) \
-  if (_debugControls) RCLCPP_DEBUG_STREAM (get_logger(), stream_arg)
+  if (_debugControls) RCLCPP_DEBUG_STREAM(get_logger(), stream_arg)
 #define DEBUG_STREAM_THROTTLE_CONTROLS(duration, stream_arg) \
   if (_debugControls) { \
     rclcpp::Clock steady_clock(RCL_STEADY_TIME); \
