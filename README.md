@@ -1,3 +1,13 @@
+<h1>!!! THIS REPOSITORY IS OBSOLETE !!!</h1>
+The ZED X One cameras are now officially supported by the [ZED ROS2 Wrapper](https://github.com/stereolabs/zed-ros2-wrapper) repository, utilizing the `stereolabs::ZedCameraOne` component
+<hr>
+
+**This repository is no longer maintained as of November 19, 2024**
+
+<hr>
+<br \>
+<br \>
+<br \>
 <h1 align="center">
    <img src="./images/Picto+STEREOLABS_Black.jpg" alt="Stereolabs" title="Stereolabs" /><br \>
    ZED X One - ROS 2
